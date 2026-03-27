@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market ChatGPT — ET Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Syne:wght@400;600;700;800&amp;family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- TICKER -->
+  <div class="ticker-bar">
+    <div class="ticker-label">NSE</div>
+    <div style="overflow:hidden; flex:1;">
+      <div class="ticker-scroll" id="ticker">
+        <div class="ticker-item"><span class="t-name">NIFTY 50</span><span class="t-price">22,147.90</span><span class="t-change up">+0.43%</span></div>
+        <div class="ticker-item"><span class="t-name">SENSEX</span><span class="t-price">73,088.33</span><span class="t-change up">+0.38%</span></div>
+        <div class="ticker-item"><span class="t-name">RELIANCE</span><span class="t-price">2,847.15</span><span class="t-change up">+1.2%</span></div>
+        <div class="ticker-item"><span class="t-name">HDFC BANK</span><span class="t-price">1,612.40</span><span class="t-change down">-0.4%</span></div>
+        <div class="ticker-item"><span class="t-name">TCS</span><span class="t-price">3,918.80</span><span class="t-change up">+0.7%</span></div>
+        <div class="ticker-item"><span class="t-name">INFOSYS</span><span class="t-price">1,543.25</span><span class="t-change down">-0.2%</span></div>
+        <div class="ticker-item"><span class="t-name">WIPRO</span><span class="t-price">467.55</span><span class="t-change up">+1.8%</span></div>
+        <div class="ticker-item"><span class="t-name">ICICI BANK</span><span class="t-price">1,122.70</span><span class="t-change up">+0.9%</span></div>
+        <div class="ticker-item"><span class="t-name">BAJFINANCE</span><span class="t-price">7,124.35</span><span class="t-change down">-0.6%</span></div>
+        <!-- duplicate for seamless loop -->
+        <div class="ticker-item"><span class="t-name">NIFTY 50</span><span class="t-price">22,147.90</span><span class="t-change up">+0.43%</span></div>
+        <div class="ticker-item"><span class="t-name">SENSEX</span><span class="t-price">73,088.33</span><span class="t-change up">+0.38%</span></div>
+        <div class="ticker-item"><span class="t-name">RELIANCE</span><span class="t-price">2,847.15</span><span class="t-change up">+1.2%</span></div>
+        <div class="ticker-item"><span class="t-name">HDFC BANK</span><span class="t-price">1,612.40</span><span class="t-change down">-0.4%</span></div>
+        <div class="ticker-item"><span class="t-name">TCS</span><span class="t-price">3,918.80</span><span class="t-change up">+0.7%</span></div>
+        <div class="ticker-item"><span class="t-name">INFOSYS</span><span class="t-price">1,543.25</span><span class="t-change down">-0.2%</span></div>
+        <div class="ticker-item"><span class="t-name">WIPRO</span><span class="t-price">467.55</span><span class="t-change up">+1.8%</span></div>
+        <div class="ticker-item"><span class="t-name">ICICI BANK</span><span class="t-price">1,122.70</span><span class="t-change up">+0.9%</span></div>
+        <div class="ticker-item"><span class="t-name">BAJFINANCE</span><span class="t-price">7,124.35</span><span class="t-change down">-0.6%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar for Portfolio -->
+    <aside class="sidebar glass-panel">
+      <div class="sidebar-header">
+        <h1 class="logo-text">⚡ MarketGPT</h1>
+        <span class="badge">Next Gen MVP</span>
+      </div>
+
+      <div class="user-config">
+        <label for="userId">User ID</label>
+        <input type="text" id="userId" value="demo-user">
+      </div>
+
+      <div class="portfolio-section">
+        <h3><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"></path></svg> Your Portfolio</h3>
+        <p class="subtitle">Upload your holdings CSV</p>
+        
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="csvFile" accept=".csv" hidden>
+          <button id="uploadBtn" class="primary-btn pulse">Upload CSV</button>
+          <span id="uploadStatus" class="status-text">No file chosen</span>
+        </div>
+
+        <div class="portfolio-preview" id="portfolioPreview">
+          <!-- Populated by JS -->
+          <ul class="holdings-list" id="holdingsList">
+            <li class="empty-state">No holdings loaded.</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Interface -->
+    <main class="chat-container">
+      <div class="chat-header glass-panel">
+        <h2>Intelligence Terminal</h2>
+        <div class="status-indicator">
+          <span class="dot live"></span> System Operational
+        </div>
+      </div>
+
+      <div class="chat-log" id="chatLog">
+        <!-- Initial assistant message -->
+        <div class="message assistant">
+          <div class="msg-avatar">AI</div>
+          <div class="msg-content glass-bubble">
+            <p>Welcome to Market ChatGPT Next Gen. Upload your portfolio and ask me anything about your stocks.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area glass-panel">
+        <textarea id="queryInput" placeholder="Ask about risks, compare stocks, or get sentiment analysis..." rows="2"></textarea>
+        <button id="sendBtn" class="send-btn">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+        </button>
+      </div>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

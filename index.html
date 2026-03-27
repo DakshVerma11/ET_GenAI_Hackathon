@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ET Markets — AI Intelligence Platform</title>
+<meta name="description" content="AI-powered investment intelligence for India's 14 crore+ retail investors. Chart patterns, market chat, video insights and opportunity radar — in one platform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #090b0f;
+    --surface:  #0f1116;
+    --surface2: #161a22;
+    --surface3: #1c2030;
+    --border:   rgba(255,255,255,0.07);
+    --border2:  rgba(255,255,255,0.13);
+    --text:     #dde1eb;
+    --muted:    #5a6070;
+    --muted2:   #8b95a8;
+    --amber:    #f59e0b;
+    --amber2:   #fbbf24;
+    --teal:     #00d4aa;
+    --teal2:    #00e8bb;
+    --green:    #10b981;
+    --red:      #ef4444;
+    --blue:     #3b82f6;
+    --purple:   #8b5cf6;
+    --mono:     'DM Mono', monospace;
+    --display:  'Syne', sans-serif;
+    --body:     'DM Sans', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    overflow-x: hidden;
+  }
+
+  /* ── GRID TEXTURE ─────────────────────────── */
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      linear-gradient(rgba(245,158,11,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,158,11,0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* ── TICKER ───────────────────────────────── */
+  .ticker-bar {
+    position:relative; z-index:50;
+    height:36px; background:rgba(9,11,15,0.98);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; overflow:hidden;
+  }
+  .ticker-tag {
+    padding:0 16px; height:100%; display:flex; align-items:center;
+    font-family:var(--mono); font-size:9px; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--amber); border-right:1px solid var(--border); white-space:nowrap; flex-shrink:0;
+  }
+  .ticker-scroll { flex:1; overflow:hidden; }
+  .ticker-inner  { display:flex; animation:tickerMove 60s linear infinite; }
+  .t-item {
+    padding:0 22px; display:flex; align-items:center; gap:7px;
+    font-family:var(--mono); font-size:10px; white-space:nowrap;
+  }
+  .t-n { color:var(--muted2); }
+  .t-p { color:var(--text); }
+  .t-u { color:var(--teal); }
+  .t-d { color:var(--red); }
+  @keyframes tickerMove { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  /* ── NAV ──────────────────────────────────── */
+  nav {
+    position:sticky; top:0; z-index:40;
+    height:62px; padding:0 36px;
+    border-bottom:1px solid var(--border);
+    background:rgba(9,11,15,0.95);
+    backdrop-filter:blur(24px);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .nav-logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+  .logo-hex {
+    width:38px; height:38px; background:var(--amber);
+    clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition:background 0.2s;
+  }
+  .logo-hex:hover { background:var(--amber2); }
+  .logo-hex svg { width:18px; height:18px; }
+  .logo-text .name { font-family:var(--display); font-size:16px; font-weight:800; color:var(--text); letter-spacing:-0.4px; }
+  .logo-text .badge { font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted2); }
+  .nav-links { display:flex; align-items:center; gap:6px; }
+  .nav-link {
+    font-family:var(--mono); font-size:10px; letter-spacing:1.2px; text-transform:uppercase;
+    padding:6px 14px; border-radius:6px; text-decoration:none; color:var(--muted2);
+    border:1px solid transparent; transition:all 0.15s;
+  }
+  .nav-link:hover { color:var(--text); border-color:var(--border2); background:var(--surface2); }
+  .nav-cta {
+    font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:7px 18px; border-radius:6px; text-decoration:none;
+    background:var(--amber); color:#0a0900; font-weight:600;
+    transition:all 0.15s; border:none; cursor:pointer;
+  }
+  .nav-cta:hover { background:var(--amber2); box-shadow:0 0 20px rgba(245,158,11,0.3); }
+
+  /* ── HERO ─────────────────────────────────── */
+  .hero {
+    position:relative; z-index:1;
+    padding:100px 36px 72px;
+    max-width:1200px; margin:0 auto;
+    text-align:center;
+  }
+  .hero-eyebrow {
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:10px; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--teal); border:1px solid rgba(0,212,170,0.25);
+    padding:5px 14px; border-radius:20px; margin-bottom:28px;
+    background:rgba(0,212,170,0.06);
+  }
+  .eyebrow-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+  .hero h1 {
+    font-family:var(--display); font-size:clamp(38px,6vw,72px); font-weight:800;
+    letter-spacing:-2px; line-height:1.05; margin-bottom:22px;
+  }
+  .hero h1 .hl-amber { color:var(--amber); }
+  .hero h1 .hl-teal  { color:var(--teal); }
+
+  .hero-sub {
+    font-size:18px; color:var(--muted2); line-height:1.7; max-width:640px; margin:0 auto 36px;
+  }
+  .hero-ctas { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn-primary {
+    font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;
+    background:var(--amber); color:#0a0900; border:none; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .btn-primary:hover { background:var(--amber2); box-shadow:0 0 28px rgba(245,158,11,0.4); transform:translateY(-2px); }
+  .btn-secondary {
+    font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:500;
+    background:transparent; color:var(--muted2); border:1px solid var(--border2);
+    transition:all 0.2s;
+  }
+  .btn-secondary:hover { color:var(--text); border-color:rgba(255,255,255,0.25); transform:translateY(-2px); }
+
+  /* hero stats strip */
+  .hero-stats {
+    display:flex; gap:0; max-width:700px; margin:60px auto 0;
+    border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    background:var(--surface);
+  }
+  .hstat {
+    flex:1; padding:22px 20px; text-align:center;
+    border-right:1px solid var(--border);
+  }
+  .hstat:last-child { border-right:none; }
+  .hstat-val { font-family:var(--display); font-size:26px; font-weight:800; line-height:1; }
+  .hstat-val.a { color:var(--amber); }
+  .hstat-val.t { color:var(--teal); }
+  .hstat-val.g { color:var(--green); }
+  .hstat-lbl { font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:6px; }
+
+  /* ── DIVIDER ──────────────────────────────── */
+  .section-divider {
+    width:100%; max-width:1200px; margin:0 auto;
+    border:none; border-top:1px solid var(--border);
+  }
+
+  /* ── SECTION LABEL ────────────────────────── */
+  .section-label {
+    font-family:var(--mono); font-size:9px; letter-spacing:3px; text-transform:uppercase;
+    color:var(--muted); text-align:center; margin-bottom:14px;
+  }
+  .section-title {
+    font-family:var(--display); font-size:clamp(26px,4vw,42px); font-weight:800;
+    letter-spacing:-1px; text-align:center; margin-bottom:12px;
+  }
+  .section-sub {
+    font-size:15px; color:var(--muted2); text-align:center; max-width:560px;
+    margin:0 auto 52px; line-height:1.7;
+  }
+
+  /* ── MODULES ──────────────────────────────── */
+  .modules-section {
+    position:relative; z-index:1;
+    padding:80px 36px;
+    max-width:1200px; margin:0 auto;
+  }
+  .modules-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+    gap:18px;
+  }
+  .module-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:30px 28px 26px;
+    transition:all 0.2s; cursor:pointer; position:relative; overflow:hidden;
+    text-decoration:none; display:flex; flex-direction:column;
+    animation:cardIn 0.5s ease both;
+  }
+  @keyframes cardIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+  .module-card::before {
+    content:''; position:absolute; inset:0; opacity:0;
+    transition:opacity 0.3s;
+  }
+  .module-card.amber::before { background:radial-gradient(ellipse at top left,rgba(245,158,11,0.07),transparent 60%); }
+  .module-card.teal::before  { background:radial-gradient(ellipse at top left,rgba(0,212,170,0.07),transparent 60%); }
+  .module-card.purple::before{ background:radial-gradient(ellipse at top left,rgba(139,92,246,0.07),transparent 60%); }
+  .module-card.blue::before  { background:radial-gradient(ellipse at top left,rgba(59,130,246,0.07),transparent 60%); }
+  .module-card:hover { border-color:var(--border2); transform:translateY(-4px); box-shadow:0 20px 40px rgba(0,0,0,0.4); }
+  .module-card:hover::before { opacity:1; }
+  .module-card:hover .mc-tag { opacity:1; }
+
+  .mc-icon {
+    width:48px; height:48px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; margin-bottom:20px; flex-shrink:0;
+  }
+  .icon-amber  { background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.2); }
+  .icon-teal   { background:rgba(0,212,170,0.12);  border:1px solid rgba(0,212,170,0.2); }
+  .icon-purple { background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.2); }
+  .icon-blue   { background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.2); }
+
+  .mc-label {
+    font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .mc-label.a { color:var(--amber); }
+  .mc-label.t { color:var(--teal); }
+  .mc-label.p { color:var(--purple); }
+  .mc-label.b { color:var(--blue); }
+
+  .mc-name {
+    font-family:var(--display); font-size:20px; font-weight:700;
+    margin-bottom:10px; line-height:1.2;
+  }
+  .mc-desc {
+    font-size:13.5px; color:var(--muted2); line-height:1.7;
+    flex:1; margin-bottom:22px;
+  }
+  .mc-pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:22px; }
+  .mc-pill {
+    font-family:var(--mono); font-size:9px; letter-spacing:0.8px;
+    padding:3px 10px; border-radius:12px; border:1px solid var(--border);
+    color:var(--muted2); background:var(--surface2);
+  }
+  .mc-tag {
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    font-weight:600; opacity:0.65; transition:opacity 0.2s;
+  }
+  .mc-tag.a { color:var(--amber); }
+  .mc-tag.t { color:var(--teal); }
+  .mc-tag.p { color:var(--purple); }
+  .mc-tag.b { color:var(--blue); }
+  .mc-tag svg { width:14px; height:14px; }
+
+  .module-num {
+    position:absolute; top:24px; right:24px;
+    font-family:var(--display); font-size:52px; font-weight:800; line-height:1;
+    opacity:0.04; pointer-events:none;
+  }
+
+  /* ── BENEFITS ─────────────────────────────── */
+  .benefits-section {
+    position:relative; z-index:1;
+    padding:80px 36px;
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+  }
+  .benefits-inner { max-width:1200px; margin:0 auto; }
+
+  .benefits-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:24px;
+  }
+  .benefit-card {
+    padding:26px 24px; border-radius:12px;
+    border:1px solid var(--border); background:var(--surface2);
+    transition:border-color 0.2s;
+  }
+  .benefit-card:hover { border-color:var(--border2); }
+  .benefit-icon { font-size:26px; margin-bottom:14px; }
+  .benefit-title { font-family:var(--display); font-size:16px; font-weight:700; margin-bottom:8px; }
+  .benefit-desc { font-size:13px; color:var(--muted2); line-height:1.7; }
+
+  /* ── HOW IT WORKS ─────────────────────────── */
+  .how-section {
+    position:relative; z-index:1;
+    padding:80px 36px;
+    max-width:1200px; margin:0 auto;
+  }
+  .steps-row { display:flex; gap:0; flex-wrap:wrap; }
+  .step-item {
+    flex:1; min-width:200px; padding:28px 24px;
+    border-right:1px solid var(--border);
+    position:relative;
+  }
+  .step-item:last-child { border-right:none; }
+  .step-num {
+    font-family:var(--display); font-size:11px; font-weight:800;
+    color:var(--amber); letter-spacing:1px; margin-bottom:12px;
+  }
+  .step-title { font-family:var(--display); font-size:16px; font-weight:700; margin-bottom:8px; }
+  .step-desc { font-size:13px; color:var(--muted2); line-height:1.7; }
+
+  /* ── FOOTER ───────────────────────────────── */
+  footer {
+    position:relative; z-index:1;
+    padding:40px 36px;
+    border-top:1px solid var(--border);
+    background:rgba(9,11,15,0.98);
+  }
+  .footer-inner {
+    max-width:1200px; margin:0 auto;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:16px;
+  }
+  .footer-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .footer-logo .name { font-family:var(--display); font-size:14px; font-weight:700; color:var(--text); }
+  .footer-logo .sub  { font-family:var(--mono); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
+  .footer-links { display:flex; gap:20px; }
+  .footer-links a {
+    font-family:var(--mono); font-size:10px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--muted); text-decoration:none; transition:color 0.15s;
+  }
+  .footer-links a:hover { color:var(--text); }
+  .footer-right { font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:0.5px; }
+
+  /* ── GLOW ORBS ────────────────────────────── */
+  .orb {
+    position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+    filter:blur(120px); opacity:0.06;
+  }
+  .orb-amber { width:600px; height:600px; background:var(--amber); top:-200px; left:-100px; }
+  .orb-teal  { width:500px; height:500px; background:var(--teal); bottom:-150px; right:-100px; }
+</style>
+</head>
+<body>
+
+<!-- Ambient glow orbs -->
+<div class="orb orb-amber"></div>
+<div class="orb orb-teal"></div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-tag">NSE Live</div>
+  <div class="ticker-scroll">
+    <div class="ticker-inner" id="tickerInner"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="logo-hex">
+      <svg viewBox="0 0 18 18" fill="none">
+        <path d="M9 1.5L15.5 5.25V12.75L9 16.5L2.5 12.75V5.25L9 1.5Z" fill="#0a0900"/>
+        <path d="M9 5L12 6.75V10.25L9 12L6 10.25V6.75L9 5Z" fill="rgba(245,158,11,0.7)"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <div class="name">ET Markets AI</div>
+      <div class="badge">Intelligence Platform</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="/chart-pattern">Chart Pattern & Radar</a>
+    <a class="nav-link" href="/market-chat">MarketGPT</a>
+    <a class="nav-link" href="/video">AI Video Engine</a>
+    <a class="nav-cta" href="/chart-pattern">Launch App →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <div class="eyebrow-dot"></div>
+    Built for India's 14 Crore+ Investors
+  </div>
+  <h1>Turn Market Data Into<br><span class="hl-amber">Money-Making</span> <span class="hl-teal">Intelligence</span></h1>
+  <p class="hero-sub">
+    ET Markets now has an AI brain. Real-time chart signals, instant portfolio answers,
+    opportunity alerts, and auto-generated market videos — all in one platform.
+  </p>
+  <div class="hero-ctas">
+    <a class="btn-primary" href="/chart-pattern">Chart Pattern & Radar →</a>
+    <a class="btn-secondary" href="/market-chat">Try MarketGPT</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat">
+      <div class="hstat-val a">20+</div>
+      <div class="hstat-lbl">NSE Stocks Scanned</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val t">Real-Time</div>
+      <div class="hstat-lbl">Pattern Detection</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val g">3 Modules</div>
+      <div class="hstat-lbl">AI-Powered Tools</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" style="color:var(--purple)">0 Guesswork</div>
+      <div class="hstat-lbl">Data-Driven Signals</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- MODULES -->
+<section class="modules-section">
+  <div class="section-label">What's Inside</div>
+  <h2 class="section-title">Four AI Modules,<br>One Unified Platform</h2>
+  <p class="section-sub">
+    Each module tackles a specific blind spot that retail investors face every day.
+  </p>
+  <div class="modules-grid">
+
+    <!-- Module 1: Opportunity Radar -->
+    <a class="module-card amber" href="/chart-pattern" style="animation-delay:0ms">
+      <div class="module-num">01</div>
+      <div class="mc-icon icon-amber">📡</div>
+      <div class="mc-label a">Signal Finder</div>
+      <div class="mc-name">Opportunity Radar</div>
+      <p class="mc-desc">
+        Continuously monitors corporate filings, bulk deals, insider trades, and management
+        commentary shifts — surfacing missed opportunities as actionable alerts.
+      </p>
+      <div class="mc-pills">
+        <span class="mc-pill">NSE Filings</span>
+        <span class="mc-pill">Insider Trades</span>
+        <span class="mc-pill">Bulk Deals</span>
+        <span class="mc-pill">Daily Alerts</span>
+      </div>
+      <div class="mc-tag a">
+        Open Radar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </a>
+
+    <!-- Module 2: Chart Pattern Intelligence -->
+    <a class="module-card amber" href="/chart-pattern" style="animation-delay:80ms">
+      <div class="module-num">02</div>
+      <div class="mc-icon icon-amber">📈</div>
+      <div class="mc-label a">Technical AI</div>
+      <div class="mc-name">Chart Pattern Intelligence</div>
+      <p class="mc-desc">
+        Real-time detection of breakouts, reversals, support/resistance and divergences
+        across NSE — with plain-English explanation and historical back-tested win rates.
+      </p>
+      <div class="mc-pills">
+        <span class="mc-pill">Breakouts</span>
+        <span class="mc-pill">Reversals</span>
+        <span class="mc-pill">Backtested</span>
+        <span class="mc-pill">NSE Universe</span>
+      </div>
+      <div class="mc-tag a">
+        Open Charts
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </a>
+
+    <!-- Module 3: Market ChatGPT -->
+    <a class="module-card teal" href="/market-chat" style="animation-delay:160ms">
+      <div class="module-num">03</div>
+      <div class="mc-icon icon-teal">🤖</div>
+      <div class="mc-label t">AI Assistant</div>
+      <div class="mc-name">Market ChatGPT — Next Gen</div>
+      <p class="mc-desc">
+        Portfolio-aware AI chat with deep market data integration, multi-step analysis,
+        and source-cited responses. Upload your holdings CSV and get instant insights.
+      </p>
+      <div class="mc-pills">
+        <span class="mc-pill">Portfolio Upload</span>
+        <span class="mc-pill">Risk Analysis</span>
+        <span class="mc-pill">Source-Cited</span>
+        <span class="mc-pill">Groq LLM</span>
+      </div>
+      <div class="mc-tag t">
+        Open Chat
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </a>
+
+    <!-- Module 4: AI Video Engine -->
+    <a class="module-card purple" href="/video" style="animation-delay:240ms">
+      <div class="module-num">04</div>
+      <div class="mc-icon icon-purple">🎬</div>
+      <div class="mc-label p">Auto-Media</div>
+      <div class="mc-name">AI Market Video Engine</div>
+      <p class="mc-desc">
+        Auto-generates 30–90 second market update videos with race charts, sector
+        rotations, FII/DII flow visualizations and IPO trackers — zero human editing.
+      </p>
+      <div class="mc-pills">
+        <span class="mc-pill">Race Charts</span>
+        <span class="mc-pill">FII/DII Flows</span>
+        <span class="mc-pill">Auto Narration</span>
+        <span class="mc-pill">Vertical 9:16</span>
+      </div>
+      <div class="mc-tag p" id="videoTagText">
+        Open Engine
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits-section">
+  <div class="benefits-inner">
+    <div class="section-label">Why It Matters</div>
+    <h2 class="section-title">Built for the Retail Investor</h2>
+    <p class="section-sub">No Bloomberg terminal. No paid analyst. Just data → signal → action.</p>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">🎯</div>
+        <div class="benefit-title">Stop Reacting, Start Acting</div>
+        <p class="benefit-desc">Get signals before the crowd. AI-detected patterns with back-tested historical success rates — not tips from unknown sources.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">📂</div>
+        <div class="benefit-title">Your Portfolio, Understood</div>
+        <p class="benefit-desc">Upload your holdings and ask anything — "what's my risk exposure?", "which sector am I overweight in?", "what's my stop loss?"</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">⚡</div>
+        <div class="benefit-title">Never Miss a Filing</div>
+        <p class="benefit-desc">The Opportunity Radar reads corporate disclosures, bulk deals, and insider trades — so you catch the signal before it hits the headlines.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">📱</div>
+        <div class="benefit-title">Market Wrap in 60 Seconds</div>
+        <p class="benefit-desc">Auto-generated vertical videos with live data, narration, and animated charts — ready for Reels or a daily morning brief.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🔍</div>
+        <div class="benefit-title">Source-Cited Answers</div>
+        <p class="benefit-desc">MarketGPT never hallucinates blindly. Every insight is tagged with its data source — NSE filings, yfinance, or regulatory data.</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">📊</div>
+        <div class="benefit-title">Real Backtests, Not Promises</div>
+        <p class="benefit-desc">Each chart pattern comes with 3-year historical win-rate, average gain, and typical days-to-target for that exact stock.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-label">Workflow</div>
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-sub">From raw market data to actionable intelligence in seconds.</p>
+  <div style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+    <div class="steps-row">
+      <div class="step-item">
+        <div class="step-num">STEP 01</div>
+        <div class="step-title">Data Intake</div>
+        <p class="step-desc">Live NSE data fetched via yfinance, corporate filings via APIs, and portfolio holdings from your CSV upload.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">STEP 02</div>
+        <div class="step-title">AI Processing</div>
+        <p class="step-desc">Groq LLM + pattern engine + RAG pipeline transforms raw data into structured signals, answers, and scripts.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">STEP 03</div>
+        <div class="step-title">Intelligence Layer</div>
+        <p class="step-desc">Conviction scoring, backtest enrichment, risk/reward calculation, and geopolitical context injection.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">STEP 04</div>
+        <div class="step-title">Actionable Output</div>
+        <p class="step-desc">Chart signals, chat answers, daily alerts, and market videos — delivered in a clean, unified interface.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a class="footer-logo" href="#">
+      <div class="logo-hex" style="width:30px;height:30px;">
+        <svg viewBox="0 0 18 18" fill="none" style="width:14px;height:14px;">
+          <path d="M9 1.5L15.5 5.25V12.75L9 16.5L2.5 12.75V5.25L9 1.5Z" fill="#0a0900"/>
+          <path d="M9 5L12 6.75V10.25L9 12L6 10.25V6.75L9 5Z" fill="rgba(245,158,11,0.7)"/>
+        </svg>
+      </div>
+      <div>
+        <div class="name">ET Markets AI Intelligence Platform</div>
+        <div class="sub">ET Hackathon 2026 · AI for the Indian Investor</div>
+      </div>
+    </a>
+    <div class="footer-links">
+      <a href="/chart-pattern">Chart Pattern</a>
+      <a href="/market-chat">MarketGPT</a>
+      <a href="/video">AI Video</a>
+    </div>
+    <div class="footer-right">NSE · BSE · yfinance · Groq API</div>
+  </div>
+</footer>
+
+<script>
+// ── TICKER ──────────────────────────────────────
+const TICKERS = [
+  ['NIFTY 50','22,147','▲','+0.43%','up'],['SENSEX','73,088','▲','+0.38%','up'],
+  ['RELIANCE','2,847','▲','+1.2%','up'],['HDFC BANK','1,612','▼','-0.4%','dn'],
+  ['TCS','3,919','▲','+0.7%','up'],['INFOSYS','1,543','▼','-0.2%','dn'],
+  ['WIPRO','467','▲','+1.8%','up'],['ICICI BANK','1,122','▲','+0.9%','up'],
+  ['BAJFINANCE','7,124','▼','-0.6%','dn'],['MARUTI','11,340','▲','+0.5%','up'],
+  ['HCLTECH','1,276','▲','+0.3%','up'],['KOTAKBANK','1,890','▼','-0.1%','dn'],
+  ['TITAN','3,341','▲','+1.1%','up'],['SUNPHARMA','1,521','▲','+0.8%','up'],
+  ['LTIM','5,230','▼','-0.3%','dn'],['BAJAJFINSV','1,644','▲','+0.6%','up'],
+];
+function buildTicker() {
+  const inner = document.getElementById('tickerInner');
+  const all = [...TICKERS,...TICKERS]; // seamless loop
+  inner.innerHTML = all.map(([n,p,arr,ch,cls])=>
+    `<div class="t-item"><span class="t-n">${n}</span><span class="t-p">₹${p}</span><span class="t-${cls==='up'?'u':'d'}">${arr} ${ch}</span></div>`
+  ).join('');
+}
+buildTicker();
+
+
+
+// ── CARD ENTRANCE ANIMATION ─────────────────────
+const cards = document.querySelectorAll('.module-card');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.style.opacity='1'; });
+}, { threshold: 0.1 });
+cards.forEach(c => observer.observe(c));
+</script>
+</body>
+</html>

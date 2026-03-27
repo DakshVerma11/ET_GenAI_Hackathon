@@ -1,0 +1,30 @@
+[
+  {
+    "symbol": "TATAMOTORS",
+    "trend": "range_weak",
+    "support": 905,
+    "resistance": 980,
+    "rsi": 46
+  },
+  {
+    "symbol": "M_M",
+    "trend": "uptrend",
+    "support": 2560,
+    "resistance": 2830,
+    "rsi": 59
+  },
+  {
+    "symbol": "HDFCBANK",
+    "trend": "sideways",
+    "support": 1480,
+    "resistance": 1635,
+    "rsi": 52
+  },
+  {
+    "symbol": "INFY",
+    "trend": "downtrend",
+    "support": 1490,
+    "resistance": 1630,
+    "rsi": 41
+  }
+]

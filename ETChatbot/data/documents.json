@@ -1,0 +1,122 @@
+[
+  {
+    "id": "DOC-001",
+    "title": "Tata Motors Q3 Concall Margin Commentary",
+    "source": "concall",
+    "stock": "TATAMOTORS",
+    "date": "2026-01-25",
+    "text": "Management discussed near-term margin pressure due to commodity costs, export demand softness, and forex volatility."
+  },
+  {
+    "id": "DOC-002",
+    "title": "M and M Filing Debt and Capex",
+    "source": "filing",
+    "stock": "M_M",
+    "date": "2025-12-10",
+    "text": "The filing highlighted controlled leverage, disciplined capex deployment, and robust farm equipment demand outlook."
+  },
+  {
+    "id": "DOC-003",
+    "title": "SEBI Circular Enhanced Disclosure Norms",
+    "source": "filing",
+    "stock": "MARKET",
+    "date": "2026-02-15",
+    "text": "Updated disclosure requirements emphasize clearer risk-factor and governance communication for listed entities."
+  },
+  {
+    "id": "DOC-004",
+    "title": "Infosys Concall Demand Signals",
+    "source": "concall",
+    "stock": "INFY",
+    "date": "2026-02-08",
+    "text": "Management commentary suggested slower discretionary tech spending in key geographies with cautious near-term guidance."
+  },
+  {
+    "id": "DOC-005",
+    "title": "HDFC Bank Quarterly News Update",
+    "source": "news",
+    "stock": "HDFCBANK",
+    "date": "2026-02-20",
+    "text": "Analysts noted stable asset quality trends and gradual margin normalization amid a mixed credit environment."
+  },
+  {
+    "id": "DOC-006",
+    "title": "Auto Sector Demand Pulse",
+    "source": "news",
+    "stock": "TATAMOTORS",
+    "date": "2026-03-05",
+    "text": "Passenger vehicle demand remained stable, but export-linked segments saw uneven order pipelines and pricing pressure."
+  },
+  {
+    "id": "DOC-007",
+    "title": "Strait of Hormuz Blockade Escalates: Crude Spikes 12%",
+    "source": "news",
+    "stock": "RELIANCE",
+    "date": "2026-03-24",
+    "text": "The escalating conflict between US-Israel and Iran has led to an effective naval blockade of the Strait of Hormuz. Brent crude surged 12% to $98/bbl. Analysts project massive gross refining margin (GRM) expansions for Reliance Industries as distillate cracks widen, though upstream costs may impact downstream retail petrochemical demand."
+  },
+  {
+    "id": "DOC-008",
+    "title": "Auto Exports Hit by Middle East Shipping Crisis",
+    "source": "news",
+    "stock": "TATAMOTORS",
+    "date": "2026-03-25",
+    "text": "Due to the Strait of Hormuz blockade and Red Sea rerouting, global freight rates have spiked by 40%. Tata Motors (JLR) and Mahindra & Mahindra are facing severe export delays to European and African markets, creating component shortages and compressing operating margins for Q1FY27."
+  },
+  {
+    "id": "DOC-009",
+    "title": "IT Sector Defensive Appeal Amidst Geopolitical Shock",
+    "source": "news",
+    "stock": "INFY",
+    "date": "2026-03-26",
+    "text": "With the Middle East geopolitical crisis sparking global energy inflation fears, institutional money is rotating into the IT sector. Infosys and TCS are viewed as defensive plays inherently isolated from physical supply chain shocks, despite potential secondary impacts of US enterprise budget freezes."
+  },
+  {
+    "id": "DOC-010",
+    "title": "RBI Emergency MPC Note: Inflation Outlook Revised",
+    "source": "filing",
+    "stock": "MARKET",
+    "date": "2026-03-26",
+    "text": "Governor Sanjay Malhotra issued a cautionary note following the Brent spike to $98. While the Repo Rate remains at 5.25%, the RBI warned that the 2% inflation target for FY27 is 'at risk' if energy prices do not mean-revert within 30 days. Liquidity measures may be tightened to support the Rupee, currently at 91.2 against the USD."
+  },
+  {
+    "id": "DOC-011",
+    "title": "Adani Green Energy: 510MW Khavda Operationalization",
+    "source": "filing",
+    "stock": "ADANIGREEN",
+    "date": "2026-03-23",
+    "text": "The company successfully commissioned 510.1 MW of solar-wind hybrid projects at the Khavda RE Park. This brings total operational capacity to 17,982 MW. Analysts view this as a significant hedge against fossil fuel price volatility caused by the ongoing Middle East shipping crisis."
+  },
+  {
+    "id": "DOC-012",
+    "title": "Zomato vs Swiggy: Quick Commerce Market Share Update",
+    "source": "news",
+    "stock": "ZOMATO",
+    "date": "2026-03-24",
+    "text": "Blinkit (Zomato) has officially surpassed a 52% market share in the Quick Commerce segment as of Q4 FY26. While Swiggy Instamart maintains a strong No. 2 position at 40%, Zomato’s transition to consistent profitability ($527 Cr in FY25) gives it superior capital allocation power during current market volatility."
+  },
+  {
+    "id": "DOC-013",
+    "title": "Logistics Technical Signal: Breakout in Container Rates",
+    "source": "news",
+    "stock": "CONCOR",
+    "date": "2026-03-25",
+    "text": "Container Corporation of India (CONCOR) and Delhivery are seeing a technical 'Golden Cross' on the daily charts as rerouting around the Cape of Good Hope drives higher logistics pricing power. Historical back-tests suggest a 68% success rate for this pattern in the logistics sector during shipping disruptions."
+  },
+  {
+    "id": "DOC-014",
+    "title": "Gold Reserves and Tail Risk Hedge",
+    "source": "news",
+    "stock": "GOLD_BEES",
+    "date": "2026-03-26",
+    "text": "Gold has surged past $2,850/oz (MCX ~₹82,000) as a safe-haven asset. Domestic ETF inflows (Gold BEES) have spiked by 300% this week. Investors are rotating out of high-beta midcaps and into bullion to mitigate the potential impact of a prolonged naval blockade."
+  },
+  {
+    "id": "DOC-015",
+    "title": "Portfolio-Aware Signal: Margin Compression Alert",
+    "source": "analysis",
+    "stock": "M_M",
+    "date": "2026-03-26",
+    "text": "Internal Signal: For users holding Auto stocks (M&M, Tata Motors), the system flags a 40% spike in global freight rates. Analysis indicates a potential 150-200 bps hit to EBITDA margins in Q1FY27 if the blockade lasts >15 days. Suggesting 'Hold' with a stop-loss at 200-DMA."
+  }
+]

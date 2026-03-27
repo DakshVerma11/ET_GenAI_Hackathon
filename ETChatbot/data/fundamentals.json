@@ -1,0 +1,38 @@
+[
+  {
+    "symbol": "TATAMOTORS",
+    "name": "Tata Motors",
+    "sector": "Automobile",
+    "pe": 21.4,
+    "roe": 16.2,
+    "debt_to_equity": 1.32,
+    "revenue_growth": 12.4
+  },
+  {
+    "symbol": "M_M",
+    "name": "Mahindra and Mahindra",
+    "sector": "Automobile",
+    "pe": 24.1,
+    "roe": 17.9,
+    "debt_to_equity": 0.42,
+    "revenue_growth": 14.1
+  },
+  {
+    "symbol": "HDFCBANK",
+    "name": "HDFC Bank",
+    "sector": "Banking",
+    "pe": 18.8,
+    "roe": 15.1,
+    "debt_to_equity": 0.0,
+    "revenue_growth": 10.7
+  },
+  {
+    "symbol": "INFY",
+    "name": "Infosys",
+    "sector": "IT",
+    "pe": 27.2,
+    "roe": 30.4,
+    "debt_to_equity": 0.09,
+    "revenue_growth": 8.3
+  }
+]

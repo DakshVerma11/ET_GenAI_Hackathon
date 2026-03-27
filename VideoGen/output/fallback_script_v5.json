@@ -1,0 +1,145 @@
+{
+  "video_title": "Market Update: Bullish Trend Continues",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "scene_title": "Intro Hook",
+      "title": "Intro Hook",
+      "visual": "Animated graph with rising stocks",
+      "on_screen_text": [
+        "Market Update",
+        "Bullish Trend"
+      ],
+      "voiceover": "Welcome to today's market update, where we see a continued bullish trend in the market.",
+      "caption": "Market Update: Bullish Trend",
+      "captions": [
+        "Market Update",
+        "Bullish Trend"
+      ],
+      "data_used": []
+    },
+    {
+      "scene_number": 2,
+      "scene_title": "Market Summary",
+      "title": "Market Summary",
+      "visual": "Summary table with major indices",
+      "on_screen_text": [
+        "Sensex: 75273.45",
+        "Nifty 50: 23306.45"
+      ],
+      "voiceover": "The Sensex closed at 75273.45, up by 1.63%, while the Nifty 50 closed at 23306.45, up by 1.72%.",
+      "caption": "Market Summary: Sensex and Nifty 50",
+      "captions": [
+        "Sensex: 75273.45",
+        "Nifty 50: 23306.45"
+      ],
+      "data_used": [
+        "Sensex",
+        "Nifty 50"
+      ]
+    },
+    {
+      "scene_number": 3,
+      "scene_title": "Major Index Performance",
+      "title": "Major Index Performance",
+      "visual": "Bar chart with major indices",
+      "on_screen_text": [
+        "Sensex: 1.63% up",
+        "Nifty 50: 1.72% up",
+        "Nifty 100: 1.77% up"
+      ],
+      "voiceover": "All major indices are up, with the Sensex rising by 1.63%, Nifty 50 by 1.72%, and Nifty 100 by 1.77%.",
+      "caption": "Major Index Performance",
+      "captions": [
+        "Sensex: 1.63% up",
+        "Nifty 50: 1.72% up",
+        "Nifty 100: 1.77% up"
+      ],
+      "data_used": [
+        "Sensex",
+        "Nifty 50",
+        "Nifty 100"
+      ]
+    },
+    {
+      "scene_number": 4,
+      "scene_title": "Sector Winners",
+      "title": "Sector Winners",
+      "visual": "Sector performance chart",
+      "on_screen_text": [
+        "Realty: 2.69% up",
+        "Metal: 2.56% up",
+        "Auto: 2.22% up"
+      ],
+      "voiceover": "The top-performing sectors are Realty, up by 2.69%, Metal, up by 2.56%, and Auto, up by 2.22%.",
+      "caption": "Sector Winners",
+      "captions": [
+        "Realty: 2.69% up",
+        "Metal: 2.56% up",
+        "Auto: 2.22% up"
+      ],
+      "data_used": [
+        "Realty",
+        "Metal",
+        "Auto"
+      ]
+    },
+    {
+      "scene_number": 5,
+      "scene_title": "Sector Losers",
+      "title": "Sector Losers",
+      "visual": "Sector performance chart",
+      "on_screen_text": [
+        "No sector losers"
+      ],
+      "voiceover": "There are no sector losers today, as all sectors are performing well.",
+      "caption": "Sector Losers: None",
+      "captions": [
+        "No sector losers"
+      ],
+      "data_used": []
+    },
+    {
+      "scene_number": 6,
+      "scene_title": "Race Chart",
+      "title": "Race Chart",
+      "visual": "Race chart with top-performing stocks",
+      "on_screen_text": [
+        "India VIX: 24.64",
+        "Down by 0.4%"
+      ],
+      "voiceover": "The India VIX is at 24.64, down by 0.4%, indicating a decrease in market volatility.",
+      "caption": "Race Chart: India VIX",
+      "captions": [
+        "India VIX: 24.64",
+        "Down by 0.4%"
+      ],
+      "data_used": [
+        "India VIX"
+      ]
+    },
+    {
+      "scene_number": 7,
+      "scene_title": "Closing Summary",
+      "title": "Closing Summary",
+      "visual": "Summary table with major indices",
+      "on_screen_text": [
+        "Sensex: 75273.45",
+        "Nifty 50: 23306.45"
+      ],
+      "voiceover": "In conclusion, the market continues its bullish trend, with all major indices up and no sector losers. The Sensex closed at 75273.45, and the Nifty 50 closed at 23306.45.",
+      "caption": "Closing Summary: Market Update",
+      "captions": [
+        "Sensex: 75273.45",
+        "Nifty 50: 23306.45"
+      ],
+      "data_used": [
+        "Sensex",
+        "Nifty 50"
+      ]
+    }
+  ],
+  "meta": {
+    "source": "groq"
+  }
+}

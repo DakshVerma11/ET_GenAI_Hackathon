@@ -1,0 +1,47 @@
+[
+  {
+    "id": "DOC-001",
+    "title": "Tata Motors Q3 Concall - Margin Commentary",
+    "source": "concall",
+    "date": "2026-01-25",
+    "tickers": ["TATAMOTORS"],
+    "tone": "negative",
+    "text": "Management discussed near-term margin pressure due to commodity costs, export demand softness, and forex volatility."
+  },
+  {
+    "id": "DOC-002",
+    "title": "M&M Annual Filing - Debt and Capex",
+    "source": "filing",
+    "date": "2025-12-10",
+    "tickers": ["M_M"],
+    "tone": "positive",
+    "text": "Filing highlighted controlled leverage, disciplined capex deployment, and robust farm equipment demand outlook."
+  },
+  {
+    "id": "DOC-003",
+    "title": "SEBI Circular - Enhanced Disclosure Norms",
+    "source": "sebi",
+    "date": "2026-02-15",
+    "tickers": ["TATAMOTORS", "M_M", "HDFCBANK", "INFY"],
+    "tone": "neutral",
+    "text": "Updated disclosure requirements emphasize clearer risk-factor and governance communication for listed entities."
+  },
+  {
+    "id": "DOC-004",
+    "title": "Infosys Management Commentary - Demand Signals",
+    "source": "concall",
+    "date": "2026-02-08",
+    "tickers": ["INFY"],
+    "tone": "negative",
+    "text": "Commentary suggested slower discretionary tech spending in key geographies with cautious near-term guidance."
+  },
+  {
+    "id": "DOC-005",
+    "title": "HDFC Bank Quarterly Update",
+    "source": "news",
+    "date": "2026-02-20",
+    "tickers": ["HDFCBANK"],
+    "tone": "neutral",
+    "text": "Analysts noted stable asset quality trends and gradual NIM normalization amid a mixed credit environment."
+  }
+]
