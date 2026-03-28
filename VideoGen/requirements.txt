@@ -6,4 +6,7 @@ moviepy==1.0.3
 matplotlib
 Pillow
 python-dotenv
-pandas
+pandas==2.2.3
+numpy==2.0.0
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
