@@ -138,14 +138,14 @@ async def signals_for_ticker(
 
 @router.get("/sectors/heatmap")
 async def sector_heatmap(db: AsyncSession = Depends(get_db)):
-        cached = _cache_get("heatmap")
-        if cached is not None:
-            return cached
-
     """
     Sector-level signal density for the heatmap panel.
     Returns signal breakdown by type in last 24 hours.
     """
+    cached = _cache_get("heatmap")
+    if cached is not None:
+        return cached
+
     since_24h = datetime.utcnow() - timedelta(hours=24)
 
     # Signal counts by type
@@ -174,11 +174,11 @@ async def sector_heatmap(db: AsyncSession = Depends(get_db)):
 
 @router.get("/stats")
 async def pipeline_stats(db: AsyncSession = Depends(get_db)):
-        cached = _cache_get("stats")
-        if cached is not None:
-            return cached
-
     """Pipeline health — signal counts, last run times, error rate."""
+    cached = _cache_get("stats")
+    if cached is not None:
+        return cached
+
     since_24h = datetime.utcnow() - timedelta(hours=24)
 
     total_signals = await db.execute(
