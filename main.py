@@ -5,8 +5,13 @@ Modules: Chart Pattern, Market ChatGPT, AI Video Engine, Opportunity Radar
 """
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, RedirectResponse
+import asyncio
+import json
+import os
+from datetime import datetime, timezone
+
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import sys
@@ -15,6 +20,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
+REQUEST_TIMEOUT_SEC = int(os.getenv("REQUEST_TIMEOUT_SEC", "22"))
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 # ── sys.path injection so sub-module internal imports work from root ───────
 sys.path.insert(0, str(ROOT / "Chart_Pattern"))
@@ -68,6 +78,64 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def realtime_guardrails(request: Request, call_next):
+    """Apply no-cache headers, timeout guard, and timestamp injection for API responses."""
+    try:
+        if request.url.path.startswith("/api"):
+            response = await asyncio.wait_for(call_next(request), timeout=REQUEST_TIMEOUT_SEC)
+        else:
+            response = await call_next(request)
+    except asyncio.TimeoutError:
+        return JSONResponse(
+            status_code=504,
+            content={
+                "status": "error",
+                "message": "Data temporarily unavailable, retrying recommended",
+                "timestamp": _utc_now_iso(),
+            },
+            headers={
+                "Cache-Control": "no-store, no-cache, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            },
+        )
+
+    if request.url.path.startswith("/api") or request.url.path == "/health":
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+
+    content_type = (response.headers.get("content-type") or "").lower()
+    if request.url.path.startswith("/api") and "application/json" in content_type:
+        body = b""
+        async for chunk in response.body_iterator:
+            body += chunk
+
+        if len(body) <= 2_000_000:
+            try:
+                payload = json.loads(body.decode("utf-8"))
+                if isinstance(payload, dict) and "timestamp" not in payload:
+                    payload["timestamp"] = _utc_now_iso()
+                    headers = dict(response.headers)
+                    return JSONResponse(
+                        content=payload,
+                        status_code=response.status_code,
+                        headers=headers,
+                    )
+            except Exception:
+                pass
+
+        return Response(
+            content=body,
+            status_code=response.status_code,
+            headers=dict(response.headers),
+            media_type=response.media_type,
+        )
+
+    return response
+
 # ── API Routers ─────────────────────────────────────────────────────────
 app.include_router(chart_pattern_router, prefix="/api/chart")
 app.include_router(market_chat_router,   prefix="/api/chat")
@@ -91,6 +159,15 @@ async def radar_ws(websocket: WebSocket):
 @app.get("/")
 async def home():
     return FileResponse(str(ROOT / "index.html"), media_type="text/html")
+
+
+@app.get("/health")
+async def health():
+    return {
+        "status": "ok",
+        "message": "System is waking up (free tier). First request may take a few seconds.",
+        "timestamp": _utc_now_iso(),
+    }
 
 @app.get("/chart-pattern")
 async def chart_pattern_redir():

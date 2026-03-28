@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import asyncio
 from io import StringIO
+import time
+from datetime import datetime, timezone
+from typing import Any
 
 import pandas as pd
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi.responses import JSONResponse
 
+from backend.config import settings
 from backend.models.schemas import ChatRequest, ChatResponse, Holding, PortfolioResponse
 from backend.rag.orchestrator import Orchestrator
 from backend.services.portfolio_store import portfolio_store
@@ -12,10 +18,18 @@ from backend.services.portfolio_store import portfolio_store
 
 def build_router(orchestrator: Orchestrator) -> APIRouter:
     router = APIRouter()
+    ticker_cache: dict[str, Any] = {"payload": None, "ts": 0.0}
+    chat_cache: dict[str, tuple[float, ChatResponse]] = {}
+
+    def now_iso() -> str:
+        return datetime.now(timezone.utc).isoformat()
+
+    def fresh(ts: float, ttl: int = 45) -> bool:
+        return (time.time() - ts) <= ttl
 
     @router.get("/health")
     def health() -> dict[str, str]:
-        return {"status": "ok"}
+        return {"status": "ok", "timestamp": now_iso()}
 
     @router.post("/portfolio/upload-csv", response_model=PortfolioResponse)
     async def upload_csv(
@@ -64,12 +78,36 @@ def build_router(orchestrator: Orchestrator) -> APIRouter:
         )
 
     @router.post("/chat", response_model=ChatResponse)
-    def chat(request: ChatRequest) -> ChatResponse:
+    async def chat(request: ChatRequest) -> ChatResponse:
         holdings = portfolio_store.get(request.user_id)
-        return orchestrator.run(request.query, holdings)
+        cache_key = f"{request.user_id}:{request.query.strip().lower()}"
+        cached = chat_cache.get(cache_key)
+        if cached and fresh(cached[0], ttl=45):
+            return cached[1]
+
+        try:
+            result = await asyncio.wait_for(
+                asyncio.to_thread(orchestrator.run, request.query, holdings),
+                timeout=settings.request_timeout_sec,
+            )
+            chat_cache[cache_key] = (time.time(), result)
+            return result
+        except asyncio.TimeoutError:
+            fallback = ChatResponse(
+                verdict="Partial response",
+                key_insights=["Response truncated due to time constraints"],
+                portfolio_impact="Portfolio impact could not be fully computed in time.",
+                answer="Response truncated due to time constraints",
+                citations=[],
+                debug={"timeout": True, "message": "Data temporarily unavailable, retrying recommended"},
+            )
+            return fallback
 
     @router.get("/ticker")
-    def get_ticker() -> list[dict[str, str]]:
+    def get_ticker() -> JSONResponse:
+        if ticker_cache["payload"] and fresh(ticker_cache["ts"], ttl=45):
+            return JSONResponse(content=ticker_cache["payload"])
+
         import yfinance as yf
         symbols = {
             "NIFTY 50": "^NSEI",
@@ -106,6 +144,14 @@ def build_router(orchestrator: Orchestrator) -> APIRouter:
                     })
             except Exception:
                 pass
-        return res
+        payload = {
+            "status": "success",
+            "message": "Fetching latest market data...",
+            "data": res,
+            "timestamp": now_iso(),
+        }
+        ticker_cache["payload"] = payload
+        ticker_cache["ts"] = time.time()
+        return JSONResponse(content=payload)
 
     return router

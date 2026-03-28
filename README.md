@@ -70,6 +70,20 @@ High-level behavior:
 3. APIs call module logic for signals, chat, or video processing.
 4. Results are shown in web dashboards or generated media outputs.
 
+## Cloud Demo Mode (Render Free Tier)
+
+This deployment runs in a constrained cloud environment. Full-scale video rendering and high-frequency processing are available in production or local setups.
+
+Recommended environment flags for cloud demo reliability:
+
+- ENABLE_VIDEO=false
+- DEMO_MODE=true
+- REQUEST_TIMEOUT_SEC=22
+
+Render start command:
+
+- uvicorn main:app --host 0.0.0.0 --port $PORT
+
 ## 4) Key Features by Module
 
 ### 4.1 Opportunity Radar

@@ -149,10 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const resp = await fetch('/api/chat/ticker');
       if (resp.ok) {
         const data = await resp.json();
+        const tickerData = Array.isArray(data) ? data : (data.data || []);
         const tickerEl = document.getElementById('ticker');
-        if (data && data.length > 0) {
+        if (tickerData && tickerData.length > 0) {
           let html = '';
-          const items = [...data, ...data, ...data]; // duplicate for seamless scrolling
+          const items = [...tickerData, ...tickerData, ...tickerData]; // duplicate for seamless scrolling
           items.forEach(i => {
             html += `<div class="ticker-item"><span class="t-name">${i.name}</span><span class="t-price">${i.price}</span><span class="t-change ${i.direction}">${i.change}</span></div>`;
           });

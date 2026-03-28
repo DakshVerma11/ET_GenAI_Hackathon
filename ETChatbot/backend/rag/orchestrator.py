@@ -3,6 +3,7 @@ from __future__ import annotations
 from langchain_core.prompts import PromptTemplate
 
 from backend.agents import fundamentals, portfolio_risk, sentiment, technicals
+from backend.config import settings
 from backend.models.schemas import ChatResponse, Holding
 from backend.rag.hf_client import hf_service
 from backend.rag.hybrid_retriever import HybridRetriever
@@ -51,7 +52,7 @@ class Orchestrator:
         if not entities and holdings and "portfolio" in query.lower():
             entities = [h.symbol for h in holdings]
 
-        retrieved = self.retriever.retrieve(expanded, top_k=8)
+        retrieved = self.retriever.retrieve(expanded, top_k=settings.retrieve_top_k)
 
         f_out = fundamentals.run(entities, self.store.fundamentals)
         t_out = technicals.run(entities, self.store.technicals)
@@ -68,9 +69,10 @@ class Orchestrator:
         evidence_text = "\n".join(
             [
                 f"[{idx + 1}] {d['metadata']['title']} ({d['metadata']['source']}, {d['metadata']['date']}): {d['text']}"
-                for idx, d in enumerate(retrieved[:6])
+                for idx, d in enumerate(retrieved[: settings.retrieve_top_k])
             ]
         )
+        evidence_text = evidence_text[: settings.context_char_limit]
         prompt = PROMPT_TMPL.format(
             query=query,
             portfolio_data=[h.model_dump() for h in holdings] if holdings else "No portfolio provided",
@@ -79,6 +81,8 @@ class Orchestrator:
             documents=evidence_text,
         )
         generated = hf_service.generate(prompt)
+        if len(generated) > settings.context_char_limit:
+            generated = generated[: settings.context_char_limit] + "\n\nResponse truncated due to time constraints"
 
         key_insights = []
         for symbol in entities:
@@ -135,7 +139,7 @@ class Orchestrator:
                 "stock": d["metadata"]["stock"],
                 "date": d["metadata"]["date"],
             }
-            for d in retrieved[:4]
+            for d in retrieved[: min(4, settings.retrieve_top_k)]
         ]
 
         return ChatResponse(

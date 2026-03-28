@@ -4,6 +4,8 @@ REST API routes for Opportunity Radar.
 All responses are JSON. Pagination uses cursor-based (offset/limit).
 """
 from datetime import datetime, timedelta
+import os
+import time
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -15,6 +17,28 @@ from models import Signal, EvidenceItem, AnalysisPoint, SectorStats, AlertConfig
 from deps import get_db
 
 router = APIRouter()
+DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() in {"1", "true", "yes"}
+CACHE_TTL_SEC = int(os.getenv("RADAR_CACHE_TTL_SEC", "45"))
+_CACHE: dict[str, tuple[float, dict]] = {}
+
+
+def _now_iso() -> str:
+    return datetime.utcnow().isoformat() + "Z"
+
+
+def _cache_get(key: str) -> Optional[dict]:
+    item = _CACHE.get(key)
+    if not item:
+        return None
+    ts, payload = item
+    if (time.time() - ts) > CACHE_TTL_SEC:
+        return None
+    return payload
+
+
+def _cache_set(key: str, payload: dict) -> dict:
+    _CACHE[key] = (time.time(), payload)
+    return payload
 
 
 class AlertToggleRequest(BaseModel):
@@ -36,6 +60,14 @@ async def list_signals(
     List recent signals, newest first.
     Filter by priority (high|med|low), signal_type, or time window.
     """
+    if DEMO_MODE:
+        limit = min(limit, 30)
+
+    cache_key = f"signals:{limit}:{offset}:{priority}:{signal_type}:{since_hours}"
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        return cached
+
     since = datetime.utcnow() - timedelta(hours=since_hours)
     q = select(Signal).where(Signal.generated_at >= since).order_by(desc(Signal.generated_at))
 
@@ -48,12 +80,14 @@ async def list_signals(
     result = await db.execute(q)
     signals = result.scalars().all()
 
-    return {
+    return _cache_set(cache_key, {
         "signals": [_serialize_signal(s) for s in signals],
         "count": len(signals),
         "offset": offset,
         "limit": limit,
-    }
+        "timestamp": _now_iso(),
+        "message": "Fetching latest market data...",
+    })
 
 
 @router.get("/signals/{signal_id}")
@@ -77,6 +111,7 @@ async def get_signal(signal_id: int, db: AsyncSession = Depends(get_db)):
         **_serialize_signal(signal),
         "evidence": [_serialize_evidence(e) for e in evidence],
         "analysis_points": [_serialize_analysis(a) for a in analysis],
+        "timestamp": _now_iso(),
     }
 
 
@@ -94,11 +129,19 @@ async def signals_for_ticker(
         .limit(limit)
     )
     signals = result.scalars().all()
-    return {"ticker": ticker.upper(), "signals": [_serialize_signal(s) for s in signals]}
+    return {
+        "ticker": ticker.upper(),
+        "signals": [_serialize_signal(s) for s in signals],
+        "timestamp": _now_iso(),
+    }
 
 
 @router.get("/sectors/heatmap")
 async def sector_heatmap(db: AsyncSession = Depends(get_db)):
+        cached = _cache_get("heatmap")
+        if cached is not None:
+            return cached
+
     """
     Sector-level signal density for the heatmap panel.
     Returns signal breakdown by type in last 24 hours.
@@ -121,15 +164,20 @@ async def sector_heatmap(db: AsyncSession = Depends(get_db)):
     )
     high_priority = high_priority_result.scalar() or 0
 
-    return {
+    return _cache_set("heatmap", {
         "sectors": type_counts,
         "high_priority_24h": high_priority,
         "updated_at": datetime.utcnow().isoformat(),
-    }
+        "timestamp": _now_iso(),
+    })
 
 
 @router.get("/stats")
 async def pipeline_stats(db: AsyncSession = Depends(get_db)):
+        cached = _cache_get("stats")
+        if cached is not None:
+            return cached
+
     """Pipeline health — signal counts, last run times, error rate."""
     since_24h = datetime.utcnow() - timedelta(hours=24)
 
@@ -148,7 +196,7 @@ async def pipeline_stats(db: AsyncSession = Depends(get_db)):
     runs = last_runs.scalars().all()
     errors = sum(1 for r in runs if not r.success)
 
-    return {
+    return _cache_set("stats", {
         "signals_24h": total_signals.scalar() or 0,
         "high_priority_24h": high_priority.scalar() or 0,
         "pipeline_error_rate": f"{errors}/{len(runs)} recent runs" if runs else "0 runs",
@@ -164,7 +212,8 @@ async def pipeline_stats(db: AsyncSession = Depends(get_db)):
             }
             for r in runs
         ],
-    }
+        "timestamp": _now_iso(),
+    })
 
 
 # ── Alert Config ───────────────────────────────────────────────────────────────
@@ -173,8 +222,11 @@ async def pipeline_stats(db: AsyncSession = Depends(get_db)):
 async def list_alerts(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(AlertConfig))
     alerts = result.scalars().all()
-    return {"alerts": [{"id": a.id, "name": a.name, "trigger_type": a.trigger_type,
-                        "threshold_value": a.threshold_value, "enabled": a.enabled} for a in alerts]}
+    return {
+        "alerts": [{"id": a.id, "name": a.name, "trigger_type": a.trigger_type,
+                    "threshold_value": a.threshold_value, "enabled": a.enabled} for a in alerts],
+        "timestamp": _now_iso(),
+    }
 
 
 @router.patch("/alerts/{alert_id}")
@@ -184,7 +236,7 @@ async def toggle_alert(alert_id: int, payload: AlertToggleRequest, db: AsyncSess
         raise HTTPException(status_code=404, detail="Alert not found")
     alert.enabled = payload.enabled
     await db.commit()
-    return {"id": alert_id, "enabled": payload.enabled}
+    return {"id": alert_id, "enabled": payload.enabled, "timestamp": _now_iso()}
 
 
 # ── Serializers ────────────────────────────────────────────────────────────────

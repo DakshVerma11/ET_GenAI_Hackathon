@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse, Response
 import json
 import threading
 import time
+import os
 from datetime import datetime
 from typing import List, Optional, Any
 import asyncio
@@ -61,6 +62,11 @@ class NumpyJSONEncoder(json.JSONEncoder):
 # API ROUTER INITIALIZATION
 # ─────────────────────────────────────────────
 router = APIRouter()
+DEMO_MODE = os.getenv("DEMO_MODE", "true").lower() in {"1", "true", "yes"}
+
+
+def _now_iso() -> str:
+    return datetime.utcnow().isoformat() + "Z"
 
 # ─────────────────────────────────────────────
 # GLOBAL STATE
@@ -134,8 +140,9 @@ async def startup_event():
     print(f"[STARTUP] Loaded {len(app_state.signals)} cached signals")
     
     # Auto-scan on startup in background
-    print("[STARTUP] Triggering initial scan of all 50 NSE stocks...")
-    thread = threading.Thread(target=perform_scan, args=(None, 50), daemon=True)
+    startup_scan_count = 20 if DEMO_MODE else 50
+    print(f"[STARTUP] Triggering initial scan of {startup_scan_count} NSE stocks...")
+    thread = threading.Thread(target=perform_scan, args=(None, startup_scan_count), daemon=True)
     thread.start()
     print("[STARTUP] Scan initiated in background...")
 
@@ -155,6 +162,7 @@ async def health_check():
         "signals_count": len(app_state.signals),
         "is_scanning": app_state.is_scanning,
         "last_scan": app_state.last_scan_time,
+        "timestamp": _now_iso(),
     }
 
 
@@ -162,7 +170,8 @@ async def health_check():
 async def get_signals(
     direction: Optional[str] = Query(None, description="Filter by 'bullish' or 'bearish'"),
     min_conviction: Optional[int] = Query(None, description="Minimum conviction score (0-100)"),
-    sort_by: str = Query("conviction", description="Sort by: conviction, symbol, pattern")
+    sort_by: str = Query("conviction", description="Sort by: conviction, symbol, pattern"),
+    lite: bool = Query(False, description="Faster, simplified response for demo mode"),
 ):
     """
     Get all detected signals with optional filtering
@@ -189,12 +198,18 @@ async def get_signals(
         signals = sorted(signals, key=lambda x: x["symbol"])
     elif sort_by == "pattern":
         signals = sorted(signals, key=lambda x: x["pattern"])
+
+    if lite:
+        # Keep payload small for constrained demos.
+        signals = signals[:15]
     
     return {
         "total": len(signals),
         "signals": signals,
         "last_scan": app_state.last_scan_time,
         "is_scanning": app_state.is_scanning,
+        "lite": lite,
+        "timestamp": _now_iso(),
     }
 
 
@@ -236,11 +251,16 @@ async def get_statistics():
         "high_conviction": len(high_conv),
         "last_scan": app_state.last_scan_time,
         "scan_duration_seconds": app_state.last_scan_duration,
+        "timestamp": _now_iso(),
     }
 
 
 @router.post("/scan")
-async def trigger_scan(background_tasks: BackgroundTasks, max_stocks: int = Query(50)):
+async def trigger_scan(
+    background_tasks: BackgroundTasks,
+    max_stocks: int = Query(50),
+    lite: bool = Query(False, description="Use faster demo scan limits"),
+):
     """
     Trigger a new scan of NSE stocks
     Runs in background and updates global signals
@@ -249,13 +269,19 @@ async def trigger_scan(background_tasks: BackgroundTasks, max_stocks: int = Quer
     if app_state.is_scanning:
         raise HTTPException(status_code=409, detail="Scan already in progress")
     
-    # Add background task - uses 3 years of data for accurate backtesting
+    if DEMO_MODE or lite:
+        max_stocks = min(max_stocks, 15)
+    else:
+        max_stocks = min(max_stocks, 50)
+
+    # Add background task - bounded scan size for reliability on free-tier infra.
     background_tasks.add_task(perform_scan, None, max_stocks)
     
     return {
         "status": "scanning",
-        "message": f"Scan initiated for {max_stocks} NSE stocks (3-year historical backtest)",
-        "timestamp": datetime.now().isoformat(),
+        "message": f"Scan initiated for {max_stocks} NSE stocks",
+        "lite": lite,
+        "timestamp": _now_iso(),
     }
 
 
@@ -287,7 +313,7 @@ async def scan_single_symbol(symbol: str, background_tasks: BackgroundTasks):
         "status": "queued",
         "symbol": symbol.upper(),
         "message": f"Scan queued for {symbol.upper()}",
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": _now_iso(),
     }
 
 
@@ -366,6 +392,7 @@ async def get_scan_status():
         "last_scan_duration": app_state.last_scan_duration,
         "signals_count": len(app_state.signals),
         "error": app_state.error_message,
+        "timestamp": _now_iso(),
     }
 
 

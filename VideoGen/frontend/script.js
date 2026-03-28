@@ -122,7 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
             const data = await res.json();
-            
+
+            if (data.status === 'limited') {
+                btn3.innerHTML = 'Cloud Limited';
+                status3.textContent = data.message || 'Video rendering is limited in cloud demo. Full capability available locally.';
+                showJson({ message: data.message, script: data.script }, 'Cloud Demo Limitation');
+                btn3.disabled = false;
+                return;
+            }
+
             if(data.status !== 'success') throw new Error(data.error || 'Render failed');
             
             btn3.innerHTML = 'Render Complete ✓';
