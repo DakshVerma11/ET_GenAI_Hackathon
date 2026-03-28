@@ -3,16 +3,16 @@ import os
 from datetime import datetime
 from typing import Dict
 
-from src.ai_engine import generate_structured_script
-from src.chart_gen import create_caption_image
-from src.config import PipelineConfig
-from src.extractor import fetch_market_dashboard
-from src.insight_engine import compute_market_insights
-from src.tts_engine import generate_audio_from_text
-from src.validation import validate_dashboard
-from src.video_engine import create_macro_video
-from src.scene_planner import build_scene_blueprint
-from src.visual_engine import render_dynamic_scenes
+from VideoGen.src.ai_engine import generate_structured_script
+from VideoGen.src.chart_gen import create_caption_image
+from VideoGen.src.config import PipelineConfig
+from VideoGen.src.extractor import fetch_market_dashboard
+from VideoGen.src.insight_engine import compute_market_insights
+from VideoGen.src.tts_engine import generate_audio_from_text
+from VideoGen.src.validation import validate_dashboard
+from VideoGen.src.video_engine import create_macro_video
+from VideoGen.src.scene_planner import build_scene_blueprint
+from VideoGen.src.visual_engine import render_dynamic_scenes
 
 
 def run_pipeline(config: PipelineConfig = None, base_bg: str = "", script_override: Dict = None, dashboard_override: Dict = None) -> Dict:

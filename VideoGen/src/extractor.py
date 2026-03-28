@@ -6,11 +6,9 @@ from typing import Dict, List, Optional
 INDICES = {
     "Sensex": "^BSESN",
     "Nifty 50": "^NSEI",
-    "Nifty Next 50": "^NN50.NS",
     "Nifty 100": "^CNX100",
     "Nifty 500": "^CRSLDX",
     "BSE 500": "BSE-500.BO",
-    "Bankex": "^BANKEX",
     "Nifty Bank": "^NSEBANK",
     "Nifty Fin Service": "NIFTY_FIN_SERVICE.NS",
     "India VIX": "^INDIAVIX"

@@ -1,0 +1,274 @@
+=== GROQ SYSTEM ===
+You are a professional financial news anchor creating short-form video scripts. Respond ONLY with valid JSON — no markdown, no extra text.
+
+=== GROQ USER PROMPT ===
+Create a market video script with exactly 7 scenes.
+
+MARKET DATA:
+{
+  "Indices": [
+    {
+      "Name": "Sensex",
+      "Close": 73583.22,
+      "Change": -2.25,
+      "Trend": "Down"
+    },
+    {
+      "Name": "Nifty 50",
+      "Close": 22819.6,
+      "Change": -2.09,
+      "Trend": "Down"
+    },
+    {
+      "Name": "Nifty 100",
+      "Close": 23400.05,
+      "Change": -2.15,
+      "Trend": "Down"
+    },
+    {
+      "Name": "Nifty 500",
+      "Close": 21020.15,
+      "Change": -2.13,
+      "Trend": "Down"
+    },
+    {
+      "Name": "BSE 500",
+      "Close": 32935.19,
+      "Change": -2.11,
+      "Trend": "Down"
+    },
+    {
+      "Name": "Nifty Bank",
+      "Close": 52274.6,
+      "Change": -2.67,
+      "Trend": "Down"
+    },
+    {
+      "Name": "Nifty Fin Service",
+      "Close": 24373.2,
+      "Change": -2.73,
+      "Trend": "Down"
+    },
+    {
+      "Name": "India VIX",
+      "Close": 26.8,
+      "Change": 8.77,
+      "Trend": "Up"
+    }
+  ],
+  "Sectors": {
+    "Top_Gainers": [],
+    "Top_Losers": [
+      {
+        "Name": "Realty",
+        "Close": 670.15,
+        "Change": -3.17,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Auto",
+        "Close": 24351.95,
+        "Change": -2.82,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Infra",
+        "Close": 8720.4,
+        "Change": -1.88,
+        "Trend": "Down"
+      }
+    ],
+    "All": [
+      {
+        "Name": "IT",
+        "Close": 29541.65,
+        "Change": -0.44,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Pharma",
+        "Close": 22565.6,
+        "Change": -0.5,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Energy",
+        "Close": 35214.8,
+        "Change": -0.96,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Metal",
+        "Close": 11161.65,
+        "Change": -1.59,
+        "Trend": "Down"
+      },
+      {
+        "Name": "FMCG",
+        "Close": 46427.2,
+        "Change": -1.81,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Infra",
+        "Close": 8720.4,
+        "Change": -1.88,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Auto",
+        "Close": 24351.95,
+        "Change": -2.82,
+        "Trend": "Down"
+      },
+      {
+        "Name": "Realty",
+        "Close": 670.15,
+        "Change": -3.17,
+        "Trend": "Down"
+      }
+    ]
+  },
+  "Flows": {
+    "FII_Net": null,
+    "DII_Net": null
+  },
+  "IPO": [],
+  "Validation": {
+    "Skipped": [],
+    "Has_Indices": true,
+    "Has_Sectors": true
+  }
+}
+
+SCENE BLUEPRINT:
+[
+  {
+    "scene_type": "intro",
+    "title": "Intro Hook",
+    "scene_number": 1,
+    "market_trend": "Bearish"
+  },
+  {
+    "scene_type": "market_summary",
+    "title": "Market Summary",
+    "scene_number": 2,
+    "market_trend": "Bearish"
+  },
+  {
+    "scene_type": "major_indices",
+    "title": "Major Index Performance",
+    "scene_number": 3,
+    "market_trend": "Bearish"
+  },
+  {
+    "scene_type": "sector_winners",
+    "title": "Sector Winners",
+    "scene_number": 4,
+    "market_trend": "Bearish"
+  },
+  {
+    "scene_type": "sector_losers",
+    "title": "Sector Losers",
+    "scene_number": 5,
+    "market_trend": "Bearish"
+  },
+  {
+    "scene_type": "race_chart",
+    "title": "Race Chart",
+    "scene_number": 6,
+    "market_trend": "Bearish"
+  },
+  {
+    "scene_type": "closing",
+    "title": "Closing Summary",
+    "scene_number": 7,
+    "market_trend": "Bearish"
+  }
+]
+
+REQUIREMENTS:
+1. Return a JSON object with keys "video_title" and "scenes".
+2. "scenes" must have exactly 7 objects.
+3. Each scene: scene_number, title, visual, on_screen_text (array), voiceover,
+   captions (array), data_used (array), caption.
+4. Use exact values and percentages from market data.
+5. Neutral language when data is missing.
+6. Tone: energetic, professional. Valid JSON only — no markdown.
+
+=== GROQ RESPONSE ===
+{
+  "video_title": "Market Update: Bearish Trend Continues",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "title": "Intro Hook",
+      "visual": "Animated graph with bearish trend",
+      "on_screen_text": ["Market Update", "Bearish Trend"],
+      "voiceover": "Welcome to today's market update, where we'll be discussing the ongoing bearish trend in the market.",
+      "captions": ["Market Update", "Bearish Trend Continues"],
+      "data_used": [],
+      "caption": "Market Update: Bearish Trend"
+    },
+    {
+      "scene_number": 2,
+      "title": "Market Summary",
+      "visual": "Split-screen with index and sector performance",
+      "on_screen_text": ["Sensex: -2.25", "Nifty 50: -2.09"],
+      "voiceover": "The market trend is bearish, with the Sensex closing at 73583.22, down by 2.25, and the Nifty 50 closing at 22819.6, down by 2.09.",
+      "captions": ["Sensex: -2.25", "Nifty 50: -2.09"],
+      "data_used": ["Sensex", "Nifty 50"],
+      "caption": "Market Summary: Bearish Trend"
+    },
+    {
+      "scene_number": 3,
+      "title": "Major Index Performance",
+      "visual": "Bar chart with major index performance",
+      "on_screen_text": ["Sensex: -2.25", "Nifty 50: -2.09", "Nifty 100: -2.15"],
+      "voiceover": "The major indices are all down, with the Sensex closing at 73583.22, down by 2.25, the Nifty 50 closing at 22819.6, down by 2.09, and the Nifty 100 closing at 23400.05, down by 2.15.",
+      "captions": ["Sensex: -2.25", "Nifty 50: -2.09", "Nifty 100: -2.15"],
+      "data_used": ["Sensex", "Nifty 50", "Nifty 100"],
+      "caption": "Major Index Performance: Down"
+    },
+    {
+      "scene_number": 4,
+      "title": "Sector Winners",
+      "visual": "Empty chart with neutral message",
+      "on_screen_text": ["No sector winners today"],
+      "voiceover": "Unfortunately, there are no sector winners today, as all sectors are down.",
+      "captions": ["No sector winners today"],
+      "data_used": [],
+      "caption": "Sector Winners: None"
+    },
+    {
+      "scene_number": 5,
+      "title": "Sector Losers",
+      "visual": "Bar chart with sector losers",
+      "on_screen_text": ["Realty: -3.17", "Auto: -2.82", "Infra: -1.88"],
+      "voiceover": "The top sector losers are Realty, down by 3.17, Auto, down by 2.82, and Infra, down by 1.88.",
+      "captions": ["Realty: -3.17", "Auto: -2.82", "Infra: -1.88"],
+      "data_used": ["Realty", "Auto", "Infra"],
+      "caption": "Sector Losers: Realty, Auto, Infra"
+    },
+    {
+      "scene_number": 6,
+      "title": "Race Chart",
+      "visual": "Line chart with India VIX performance",
+      "on_screen_text": ["India VIX: +8.77"],
+      "voiceover": "The India VIX is up by 8.77, indicating increased volatility in the market.",
+      "captions": ["India VIX: +8.77"],
+      "data_used": ["India VIX"],
+      "caption": "India VIX: Up"
+    },
+    {
+      "scene_number": 7,
+      "title": "Closing Summary",
+      "visual": "Split-screen with index and sector performance",
+      "on_screen_text": ["Sensex: -2.25", "Nifty 50: -2.09"],
+      "voiceover": "In conclusion, the market trend is bearish, with all major indices and sectors down. We'll be back with more updates tomorrow.",
+      "captions": ["Sensex: -2.25", "Nifty 50: -2.09"],
+      "data_used": ["Sensex", "Nifty 50"],
+      "caption": "Closing Summary: Bearish Trend"
+    }
+  ]
+}

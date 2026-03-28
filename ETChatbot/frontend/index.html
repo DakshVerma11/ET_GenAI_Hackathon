@@ -8,8 +8,64 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=Syne:wght@400;600;700;800&amp;family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* GLOBAL NAV CSS */
+    .gateway-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      height: 44px;
+      background: rgba(9,11,15,0.97);
+      border-bottom: 1px solid rgba(245,158,11,0.18);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 6px;
+    }
+    .gn-logo {
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; flex-shrink: 0; margin-right: 10px;
+    }
+    .gn-hex {
+      width: 28px; height: 28px; background: #f59e0b;
+      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gn-name {
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800;
+      color: #dde1eb; letter-spacing: -0.3px; white-space: nowrap;
+    }
+    .gn-tabs { display: flex; align-items: center; gap: 3px; }
+    .gn-tab {
+      font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; text-decoration: none;
+      padding: 5px 12px; border-radius: 5px;
+      color: #5a6070; border: 1px solid transparent;
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .gn-tab:hover { color: #dde1eb; border-color: rgba(255,255,255,0.1); background: #161a22; }
+    .gn-tab.active { color: #f59e0b; border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.06); }
+    body { padding-top: 44px; } /* Adjust layout */
+  </style>
 </head>
 <body>
+
+<!-- GLOBAL NAV -->
+<nav class="gateway-nav">
+  <a class="gn-logo" href="/">
+    <div class="gn-hex">
+      <svg viewBox="0 0 18 18" fill="none" width="16" height="16">
+        <path d="M9 1.5L15.5 5.25V12.75L9 16.5L2.5 12.75V5.25L9 1.5Z" fill="#0a0900"/>
+        <path d="M9 5L12 6.75V10.25L9 12L6 10.25V6.75L9 5Z" fill="rgba(245,158,11,0.7)"/>
+      </svg>
+    </div>
+    <span class="gn-name">ET Markets AI</span>
+  </a>
+  <div class="gn-tabs">
+    <a class="gn-tab" href="/">🏠 Home</a>
+    <a class="gn-tab" href="/radar">📡 Opportunity Radar</a>
+    <a class="gn-tab" href="/chart-pattern">📈 Chart Pattern</a>
+    <a class="gn-tab active" href="/market-chat">🤖 MarketGPT</a>
+    <a class="gn-tab" href="/video">🎬 AI Video</a>
+  </div>
+</nav>
 
   <!-- TICKER -->
   <div class="ticker-bar">

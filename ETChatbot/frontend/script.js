@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.append('file', file);
     
     try {
-      const res = await fetch(`/portfolio/upload-csv?user_id=${userIdInput.value}`, {
+      const res = await fetch(`/api/chat/portfolio/upload-csv?user_id=${userIdInput.value}`, {
         method: 'POST',
         body: formData
       });
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingId = addMessage('assistant', '<span class="loader"></span> Analyzing market data...');
 
     try {
-      const res = await fetch('/chat', {
+      const res = await fetch('/api/chat/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -135,10 +135,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Accept prefilled query from URL, e.g. /market-chat/?q=RELIANCE+stock+analysis
+  const params = new URLSearchParams(window.location.search);
+  const prefillQuery = params.get('q');
+  if (prefillQuery) {
+    queryInput.value = prefillQuery;
+    submitChat();
+  }
+
   // Ticker Logic
   async function fetchTicker() {
     try {
-      const resp = await fetch('/ticker');
+      const resp = await fetch('/api/chat/ticker');
       if (resp.ok) {
         const data = await resp.json();
         const tickerEl = document.getElementById('ticker');

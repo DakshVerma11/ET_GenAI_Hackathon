@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Market Video Engine — ET Markets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b0f;
+      --surface: #0f1116;
+      --surface2: #161a22;
+      --surface3: #1c2030;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --text: #dde1eb;
+      --muted: #5a6070;
+      --accent: #f59e0b;
+      --green: #10b981;
+      --mono: 'DM Mono', monospace;
+      --display: 'Syne', sans-serif;
+      --body: 'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background: var(--bg); color: var(--text); font-family: var(--body); height: 100vh; overflow: hidden; padding-top: 44px; }
+    
+    /* GRID TEXTURE */
+    body::after {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:
+        linear-gradient(rgba(245,158,11,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,158,11,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* GLOBAL NAV CSS */
+    .gateway-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      height: 44px;
+      background: rgba(9,11,15,0.97);
+      border-bottom: 1px solid rgba(245,158,11,0.18);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 6px;
+    }
+    .gn-logo {
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; flex-shrink: 0; margin-right: 10px;
+    }
+    .gn-hex {
+      width: 28px; height: 28px; background: var(--accent);
+      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gn-name {
+      font-family: var(--display); font-size: 13px; font-weight: 800;
+      color: var(--text); letter-spacing: -0.3px; white-space: nowrap;
+    }
+    .gn-tabs { display: flex; align-items: center; gap: 3px; }
+    .gn-tab {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; text-decoration: none;
+      padding: 5px 12px; border-radius: 5px;
+      color: var(--muted); border: 1px solid transparent;
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .gn-tab:hover { color: var(--text); border-color: rgba(255,255,255,0.1); background: var(--surface2); }
+    .gn-tab.active { color: var(--accent); border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.06); }
+
+    .app-container {
+      display: flex; height: calc(100vh - 44px); position: relative; z-index: 10;
+    }
+
+    /* LEFT PANEL: CONTROLS */
+    .controls-panel {
+      width: 400px; background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 24px; overflow-y: auto; flex-shrink: 0;
+    }
+    .cp-header { margin-bottom: 30px; }
+    .cp-title { font-family: var(--display); font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+    .cp-sub { font-size: 13px; color: var(--muted); }
+
+    .step-card {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px; margin-bottom: 20px; transition: 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .step-card.active { border-color: rgba(245, 158, 11, 0.4); box-shadow: 0 0 20px rgba(245,158,11,0.05); }
+    .step-card.done .step-status { color: var(--green); }
+    .step-num { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 1px; margin-bottom: 8px; }
+    .step-title { font-family: var(--display); font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .step-status { font-family: var(--mono); font-size: 11px; margin-bottom: 16px; min-height: 14px; color: var(--muted); }
+    
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 6px;
+      font-family: var(--mono); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* RIGHT PANEL: PREVIEW */
+    .preview-panel {
+      flex: 1; display: flex; flex-direction: column; padding: 24px; background: var(--bg);
+    }
+    .preview-header {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .preview-content {
+      flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+    }
+    
+    #jsonViewer {
+      width: 100%; height: 100%; padding: 20px; font-family: var(--mono); font-size: 12px;
+      color: var(--text); overflow: auto; display: none; line-height: 1.5; background: #000;
+    }
+    
+    #videoContainer {
+      width: 100%; height: 100%; display: none; align-items: center; justify-content: center; background: #000;
+      position: relative;
+    }
+    video { max-height: 100%; max-width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+    .loader {
+      width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.2); border-left-color: #000;
+      border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <nav class="gateway-nav">
+    <a class="gn-logo" href="/">
+      <div class="gn-hex">
+        <svg viewBox="0 0 18 18" fill="none" width="16" height="16">
+          <path d="M9 1.5L15.5 5.25V12.75L9 16.5L2.5 12.75V5.25L9 1.5Z" fill="#0a0900"/>
+          <path d="M9 5L12 6.75V10.25L9 12L6 10.25V6.75L9 5Z" fill="rgba(245,158,11,0.7)"/>
+        </svg>
+      </div>
+      <span class="gn-name">ET Markets AI</span>
+    </a>
+    <div class="gn-tabs">
+      <a class="gn-tab" href="/">🏠 Home</a>
+      <a class="gn-tab" href="/radar">📡 Opportunity Radar</a>
+      <a class="gn-tab" href="/chart-pattern">📈 Chart Pattern</a>
+      <a class="gn-tab" href="/market-chat">🤖 MarketGPT</a>
+      <a class="gn-tab active" href="/video">🎬 AI Video</a>
+    </div>
+  </nav>
+
+  <div class="app-container">
+    <div class="controls-panel">
+      <div class="cp-header">
+        <div class="cp-title">Video Engine v2</div>
+        <div class="cp-sub">Generate vertical shorts automatically</div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="step-card active" id="cardStep1">
+        <div class="step-num">STEP 1</div>
+        <div class="step-title">Market Data</div>
+        <div class="step-status" id="status1">Awaiting action...</div>
+        <button class="btn btn-primary" id="btnStep1">Fetch Real-Time Data</button>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-card" id="cardStep2">
+        <div class="step-num">STEP 2</div>
+        <div class="step-title">AI Script</div>
+        <div class="step-status" id="status2">Requires Market Data</div>
+        <button class="btn btn-primary" id="btnStep2" disabled>Generate Script</button>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-card" id="cardStep3">
+        <div class="step-num">STEP 3</div>
+        <div class="step-title">Render Video</div>
+        <div class="step-status" id="status3">Requires AI Script</div>
+        <button class="btn btn-primary" id="btnStep3" disabled>Start Render</button>
+      </div>
+    </div>
+
+    <div class="preview-panel">
+      <div class="preview-header">
+        <span>Output Viewer</span>
+        <span id="viewerType">Idle</span>
+      </div>
+      <div class="preview-content">
+        <!-- Default State -->
+        <div id="idleState" style="text-align: center; color: var(--muted); font-family: var(--mono); font-size: 12px; line-height: 1.8;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 20px; opacity: 0.5;">
+            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+          </svg>
+          <br>
+          Select an action to view data or generated video.
+        </div>
+
+        <!-- JSON Dump -->
+        <pre id="jsonViewer"></pre>
+
+        <!-- Video Player -->
+        <div id="videoContainer">
+          <video id="videoPlayer" controls loop></video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

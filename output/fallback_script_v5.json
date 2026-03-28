@@ -1,0 +1,143 @@
+{
+  "video_title": "Market Update: Bearish Trend Continues",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "scene_title": "Intro Hook",
+      "title": "Intro Hook",
+      "visual": "Animated graph with bearish trend",
+      "on_screen_text": [
+        "Market Update",
+        "Bearish Trend"
+      ],
+      "voiceover": "Welcome to today's market update, where we'll be discussing the ongoing bearish trend in the market.",
+      "caption": "Market Update: Bearish Trend",
+      "captions": [
+        "Market Update",
+        "Bearish Trend Continues"
+      ],
+      "data_used": []
+    },
+    {
+      "scene_number": 2,
+      "scene_title": "Market Summary",
+      "title": "Market Summary",
+      "visual": "Split-screen with index and sector performance",
+      "on_screen_text": [
+        "Sensex: -2.25",
+        "Nifty 50: -2.09"
+      ],
+      "voiceover": "The market trend is bearish, with the Sensex closing at 73583.22, down by 2.25, and the Nifty 50 closing at 22819.6, down by 2.09.",
+      "caption": "Market Summary: Bearish Trend",
+      "captions": [
+        "Sensex: -2.25",
+        "Nifty 50: -2.09"
+      ],
+      "data_used": [
+        "Sensex",
+        "Nifty 50"
+      ]
+    },
+    {
+      "scene_number": 3,
+      "scene_title": "Major Index Performance",
+      "title": "Major Index Performance",
+      "visual": "Bar chart with major index performance",
+      "on_screen_text": [
+        "Sensex: -2.25",
+        "Nifty 50: -2.09",
+        "Nifty 100: -2.15"
+      ],
+      "voiceover": "The major indices are all down, with the Sensex closing at 73583.22, down by 2.25, the Nifty 50 closing at 22819.6, down by 2.09, and the Nifty 100 closing at 23400.05, down by 2.15.",
+      "caption": "Major Index Performance: Down",
+      "captions": [
+        "Sensex: -2.25",
+        "Nifty 50: -2.09",
+        "Nifty 100: -2.15"
+      ],
+      "data_used": [
+        "Sensex",
+        "Nifty 50",
+        "Nifty 100"
+      ]
+    },
+    {
+      "scene_number": 4,
+      "scene_title": "Sector Winners",
+      "title": "Sector Winners",
+      "visual": "Empty chart with neutral message",
+      "on_screen_text": [
+        "No sector winners today"
+      ],
+      "voiceover": "Unfortunately, there are no sector winners today, as all sectors are down.",
+      "caption": "Sector Winners: None",
+      "captions": [
+        "No sector winners today"
+      ],
+      "data_used": []
+    },
+    {
+      "scene_number": 5,
+      "scene_title": "Sector Losers",
+      "title": "Sector Losers",
+      "visual": "Bar chart with sector losers",
+      "on_screen_text": [
+        "Realty: -3.17",
+        "Auto: -2.82",
+        "Infra: -1.88"
+      ],
+      "voiceover": "The top sector losers are Realty, down by 3.17, Auto, down by 2.82, and Infra, down by 1.88.",
+      "caption": "Sector Losers: Realty, Auto, Infra",
+      "captions": [
+        "Realty: -3.17",
+        "Auto: -2.82",
+        "Infra: -1.88"
+      ],
+      "data_used": [
+        "Realty",
+        "Auto",
+        "Infra"
+      ]
+    },
+    {
+      "scene_number": 6,
+      "scene_title": "Race Chart",
+      "title": "Race Chart",
+      "visual": "Line chart with India VIX performance",
+      "on_screen_text": [
+        "India VIX: +8.77"
+      ],
+      "voiceover": "The India VIX is up by 8.77, indicating increased volatility in the market.",
+      "caption": "India VIX: Up",
+      "captions": [
+        "India VIX: +8.77"
+      ],
+      "data_used": [
+        "India VIX"
+      ]
+    },
+    {
+      "scene_number": 7,
+      "scene_title": "Closing Summary",
+      "title": "Closing Summary",
+      "visual": "Split-screen with index and sector performance",
+      "on_screen_text": [
+        "Sensex: -2.25",
+        "Nifty 50: -2.09"
+      ],
+      "voiceover": "In conclusion, the market trend is bearish, with all major indices and sectors down. We'll be back with more updates tomorrow.",
+      "caption": "Closing Summary: Bearish Trend",
+      "captions": [
+        "Sensex: -2.25",
+        "Nifty 50: -2.09"
+      ],
+      "data_used": [
+        "Sensex",
+        "Nifty 50"
+      ]
+    }
+  ],
+  "meta": {
+    "source": "groq"
+  }
+}

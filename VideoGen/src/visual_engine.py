@@ -1,7 +1,7 @@
 import os
 from typing import Dict, List
 
-from src.chart_gen import (
+from VideoGen.src.chart_gen import (
     generate_scene_1_intro,
     generate_scene_2_indices,
     generate_scene_3_trend,

@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-03-28T11:28:56.877495Z",
+  "video_path": "output\\output_macro_wrap_v5.mp4",
+  "video_title": "Market Update: Bearish Trend Continues",
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "aspect_ratio": "9:16",
+    "fps": 24,
+    "duration_target_sec": [
+      30,
+      90
+    ]
+  },
+  "scene_count": 7,
+  "scene_blueprint": [
+    {
+      "scene_type": "intro",
+      "title": "Intro Hook",
+      "scene_number": 1,
+      "market_trend": "Bearish"
+    },
+    {
+      "scene_type": "market_summary",
+      "title": "Market Summary",
+      "scene_number": 2,
+      "market_trend": "Bearish"
+    },
+    {
+      "scene_type": "major_indices",
+      "title": "Major Index Performance",
+      "scene_number": 3,
+      "market_trend": "Bearish"
+    },
+    {
+      "scene_type": "sector_winners",
+      "title": "Sector Winners",
+      "scene_number": 4,
+      "market_trend": "Bearish"
+    },
+    {
+      "scene_type": "sector_losers",
+      "title": "Sector Losers",
+      "scene_number": 5,
+      "market_trend": "Bearish"
+    },
+    {
+      "scene_type": "race_chart",
+      "title": "Race Chart",
+      "scene_number": 6,
+      "market_trend": "Bearish"
+    },
+    {
+      "scene_type": "closing",
+      "title": "Closing Summary",
+      "scene_number": 7,
+      "market_trend": "Bearish"
+    }
+  ],
+  "script_source": "groq",
+  "skipped_symbols": [],
+  "provider_meta": {
+    "Skipped_Symbols": [],
+    "Provider_Health": {
+      "primary": "yfinance",
+      "status": "ok"
+    }
+  },
+  "publishing": {
+    "title_options": [
+      "India Market Wrap Today",
+      "Nifty Sensex Daily Update",
+      "Stock Market Closing Bell Brief"
+    ],
+    "hashtags": [
+      "#StockMarket",
+      "#Nifty50",
+      "#Sensex",
+      "#MarketUpdate",
+      "#IndianMarkets"
+    ],
+    "description_template": "Daily Indian market update with indices, sectors, volatility, and key insights."
+  },
+  "dry_run": false
+}

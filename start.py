@@ -10,11 +10,6 @@ Usage:
 
 User-facing:
     http://localhost:8000  ← the ONLY URL you need
-
-Internal (do not access directly):
-    http://localhost:8001  Chart Pattern & Radar backend
-    http://localhost:8002  Market ChatGPT backend
-    http://localhost:8501  AI Video Engine (Streamlit)
 """
 
 import subprocess
@@ -36,48 +31,16 @@ ROOT = Path(__file__).parent.resolve()
 Service = Dict[str, Any]
 
 SERVICES: List[Service] = [
-    # ── 1. Unified Gateway (user-facing, port 8000) ──────────────
+    # ── 1. Unified Platform (user-facing, port 8000) ──────────────
     {
-        "name":  "Gateway (port 8000)",
-        "color": "\033[97m",   # white — primary service
+        "name":  "Unified ET Markets Platform (port 8000)",
+        "color": "\033[97m",   # white
         "cwd":   str(ROOT),
-        "cmd":   [sys.executable, "-m", "uvicorn", "gateway:app",
-                  "--host", "0.0.0.0", "--port", "8000"],
+        "cmd":   [sys.executable, "-m", "uvicorn", "main:app",
+                  "--host", "0.0.0.0", "--port", "8000", "--reload"],
         "wait_seconds": 3,
         "user_facing": True,
-    },
-    # ── 2. Chart Pattern & Radar backend (internal, port 8001) ───
-    {
-        "name":  "Chart Pattern & Radar (internal 8001)",
-        "color": "\033[93m",   # amber
-        "cwd":   str(ROOT / "Chart_Pattern"),
-        "cmd":   [sys.executable, "-m", "uvicorn", "main:app",
-                  "--host", "0.0.0.0", "--port", "8001"],
-        "wait_seconds": 5,
-        "user_facing": False,
-    },
-    # ── 3. Market ChatGPT backend (internal, port 8002) ──────────
-    {
-        "name":  "Market ChatGPT (internal 8002)",
-        "color": "\033[92m",   # teal/green
-        "cwd":   str(ROOT / "ETChatbot"),
-        "cmd":   [sys.executable, "-m", "uvicorn", "backend.main:app",
-                  "--host", "0.0.0.0", "--port", "8002"],
-        "wait_seconds": 5,
-        "user_facing": False,
-    },
-    # ── 4. AI Video Engine (internal, port 8501) ──────────────────
-    {
-        "name":  "AI Video Engine (internal 8501)",
-        "color": "\033[95m",   # purple
-        "cwd":   str(ROOT / "VideoGen"),
-        "cmd":   [sys.executable, "-m", "streamlit", "run", "app.py",
-                  "--server.port", "8501",
-                  "--server.address", "0.0.0.0",
-                  "--server.headless", "true"],
-        "wait_seconds": 7,
-        "user_facing": False,
-    },
+    }
 ]
 
 RESET = "\033[0m"
@@ -136,17 +99,29 @@ def check_python() -> None:
     print(f"  ✓ Python {v.major}.{v.minor}.{v.micro}")
 
 def install_deps() -> None:
+    marker_file = ROOT / ".deps_installed"
+    if marker_file.exists():
+        print("  ✓ Dependencies already installed — skipping. (Delete .deps_installed to re-run)")
+        return
+
     reqs = [
         ROOT / "Chart_Pattern" / "requirements.txt",
         ROOT / "ETChatbot"     / "requirements.txt",
         ROOT / "VideoGen"      / "requirements.txt",
+        ROOT / "Radar"         / "requirements.txt",
     ]
     gateway_deps = ["fastapi", "uvicorn[standard]"]
+    all_ok = True
     print(f"  📦 Gateway deps...")
-    subprocess.run(
+    gateway_result = subprocess.run(
         [sys.executable, "-m", "pip", "install", "-q"] + gateway_deps,
-        capture_output=True,
+        capture_output=True, text=True,
     )
+    if gateway_result.returncode != 0:
+        all_ok = False
+        gateway_err = (gateway_result.stderr or gateway_result.stdout or "").strip()
+        if gateway_err:
+            print(f"  {RED}⚠  Gateway deps: {gateway_err.splitlines()[0]}{RESET}")
     for req in reqs:
         if req.exists():
             module = req.parent.name
@@ -156,8 +131,16 @@ def install_deps() -> None:
                 capture_output=True, text=True,
             )
             if result.returncode != 0:
-                stderr_out: str = result.stderr if isinstance(result.stderr, str) else ""
-                print(f"  {RED}⚠  {module}: {stderr_out[0:150]}{RESET}")
+                all_ok = False
+                err_text = (result.stderr or result.stdout or "").strip()
+                first_line = err_text.splitlines()[0] if err_text else "pip install failed"
+                print(f"  {RED}⚠  {module}: {first_line}{RESET}")
+
+    if all_ok:
+        marker_file.touch()
+        print(f"  ✓ All dependencies installed. Cached for future runs.")
+    else:
+        print(f"  {RED}⚠  Some dependencies failed to install. Fix issues above and re-run.{RESET}")
 
 def cleanup(signum: Any = None, frame: Any = None) -> None:
     print(f"\n\n{BOLD}🛑 Shutting down...{RESET}")
@@ -217,6 +200,20 @@ def main() -> None:
         time.sleep(1)
         bar = "█" * (i + 1) + "░" * (total - i - 1)
         print(f"  [{bar}] {i+1}/{total}", flush=True)
+
+    failed_services: list[tuple[int, int]] = []
+    for i, proc in enumerate(processes):
+        code = proc.poll()
+        if code is not None:
+            failed_services.append((i, code))
+
+    if failed_services:
+        print(f"\n{RED}{BOLD}✗ Startup failed: one or more services exited during boot.{RESET}")
+        for index, code in failed_services:
+            svc_name = str(SERVICES[index]["name"]) if index < len(SERVICES) else f"Service {index}"
+            print(f"  {RED}• {svc_name} exited (code {code}){RESET}")
+        print(f"\n  {CYAN}Tip: run with --skip-install after fixing dependencies for faster retries.{RESET}")
+        cleanup()
 
     print(f"""
 {BOLD}\033[92m╔══════════════════════════════════════════════════════════╗

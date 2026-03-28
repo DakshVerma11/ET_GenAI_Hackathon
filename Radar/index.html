@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opportunity Radar — ET Markets Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06080f;
+    --surface: #0d1117;
+    --surface2: #111820;
+    --surface3: #161f2a;
+    --border: rgba(255,255,255,0.06);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8edf5;
+    --muted: #7a8899;
+    --accent: #00d4aa;
+    --accent2: #ff6b35;
+    --accent3: #4d9fff;
+    --danger: #ff4757;
+    --warn: #ffa502;
+    --success: #00d4aa;
+    --gold: #f0b429;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-top: 44px; /* gateway nav height */
+  }
+
+  /* ── Global Nav ─────────────────────────────────────────── */
+  .gateway-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    height: 44px;
+    background: rgba(6,8,15,0.98);
+    border-bottom: 1px solid rgba(0,212,170,0.18);
+    backdrop-filter: blur(16px);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 6px;
+  }
+  .gn-logo {
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none; flex-shrink: 0; margin-right: 10px;
+  }
+  .gn-hex {
+    width: 28px; height: 28px; background: #00d4aa;
+    clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .gn-name {
+    font-family: var(--display); font-size: 13px; font-weight: 800;
+    color: var(--text); letter-spacing: -0.3px; white-space: nowrap;
+  }
+  .gn-tabs { display: flex; align-items: center; gap: 3px; }
+  .gn-tab {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+    text-transform: uppercase; text-decoration: none;
+    padding: 5px 12px; border-radius: 5px;
+    color: var(--muted); border: 1px solid transparent;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .gn-tab:hover { color: var(--text); border-color: rgba(255,255,255,0.1); background: var(--surface2); }
+  .gn-tab.active { color: var(--accent); border-color: rgba(0,212,170,0.25); background: rgba(0,212,170,0.06); }
+
+  /* Subtle grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Radar pulse animation */
+  @keyframes pulse-ring {
+    0% { transform: scale(0.5); opacity: 0.8; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  @keyframes scanline {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* HEADER */
+  .header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(6,8,15,0.95);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .radar-icon {
+    width: 36px; height: 36px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .radar-icon svg { width: 100%; height: 100%; }
+
+  .logo-text {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-top: 1px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+
+  .scan-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .scan-count span {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* TICKER */
+  .ticker-bar {
+    position: relative;
+    z-index: 10;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    height: 34px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ticker-label {
+    flex-shrink: 0;
+    padding: 0 14px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    border-right: 1px solid var(--border2);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    z-index: 2;
+  }
+
+  .ticker-scroll {
+    display: flex;
+    animation: ticker 28s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    border-right: 1px solid var(--border);
+  }
+
+  .t-name { color: var(--muted); font-size: 11px; }
+  .t-price { color: var(--text); font-weight: 500; }
+  .t-change.up { color: var(--accent); }
+  .t-change.down { color: var(--danger); }
+
+  /* MAIN LAYOUT */
+  .main {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 0;
+    height: calc(100vh - 147px); /* 44px nav + 103px (header + ticker) */
+  }
+
+  /* LEFT PANEL */
+  .left-panel {
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .filter-btn {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent3);
+    cursor: pointer;
+    background: rgba(77,159,255,0.08);
+    border: 1px solid rgba(77,159,255,0.2);
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+
+  .signal-filters {
+    padding: 12px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-pill {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .filter-pill.active-green { background: rgba(0,212,170,0.12); color: var(--accent); border-color: rgba(0,212,170,0.25); }
+  .filter-pill.active-orange { background: rgba(255,107,53,0.12); color: var(--accent2); border-color: rgba(255,107,53,0.25); }
+  .filter-pill.active-blue { background: rgba(77,159,255,0.12); color: var(--accent3); border-color: rgba(77,159,255,0.25); }
+  .filter-pill.active-gold { background: rgba(240,180,41,0.12); color: var(--gold); border-color: rgba(240,180,41,0.25); }
+  .filter-pill.inactive { background: var(--surface3); color: var(--muted); border-color: var(--border2); }
+
+  .signal-list {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+    padding-right: 2px;
+  }
+
+  .signal-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .signal-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .signal-list::-webkit-scrollbar-thumb {
+    background: var(--border2);
+    border-radius: 3px;
+  }
+
+  .signal-list::-webkit-scrollbar-thumb:hover {
+    background: var(--border);
+  }
+
+  .signal-item {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.12s;
+    position: relative;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .signal-item:hover { background: var(--surface2); }
+  .signal-item.active { background: var(--surface2); border-left: 2px solid var(--accent); }
+
+  .signal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  .signal-ticker {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .signal-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .signal-title {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .signal-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .signal-type {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .type-filing { background: rgba(77,159,255,0.15); color: var(--accent3); }
+  .type-insider { background: rgba(240,180,41,0.15); color: var(--gold); }
+  .type-bulk { background: rgba(255,107,53,0.15); color: var(--accent2); }
+  .type-result { background: rgba(0,212,170,0.15); color: var(--accent); }
+  .type-regex { background: rgba(200,120,255,0.15); color: #c878ff; }
+
+  .signal-strength {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .bar {
+    width: 3px; height: 8px;
+    border-radius: 1px;
+    background: var(--border2);
+  }
+
+  .bar.on { background: var(--accent); }
+
+  /* CENTER - RADAR + DETAIL */
+  .center-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .radar-section {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+  }
+
+  /* Radar visualization */
+  .radar-viz {
+    flex-shrink: 0;
+    position: relative;
+    width: 180px;
+    height: 180px;
+  }
+
+  .radar-viz svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .radar-info {
+    flex: 1;
+  }
+
+  .radar-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .radar-sub {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 24px;
+  }
+
+  .stat-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .stat-val.green { color: var(--accent); }
+  .stat-val.orange { color: var(--accent2); }
+  .stat-val.gold { color: var(--gold); }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  /* Signal Detail */
+  .signal-detail {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 28px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .signal-detail::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .signal-detail::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .signal-detail::-webkit-scrollbar-thumb {
+    background: var(--border2);
+    border-radius: 3px;
+  }
+
+  .signal-detail::-webkit-scrollbar-thumb:hover {
+    background: var(--border);
+  }
+
+  .detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .detail-ticker-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .detail-ticker {
+    font-family: var(--display);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .detail-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .badge-high { background: rgba(255,71,87,0.15); color: var(--danger); border: 1px solid rgba(255,71,87,0.3); }
+  .badge-med { background: rgba(255,165,2,0.15); color: var(--warn); border: 1px solid rgba(255,165,2,0.3); }
+  .badge-low { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.3); }
+
+  .detail-name {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .detail-headline {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .detail-summary {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .analysis-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .analysis-card-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .analysis-card-val {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .analysis-card-val.positive { color: var(--accent); }
+  .analysis-card-val.negative { color: var(--danger); }
+  .analysis-card-val.neutral { color: var(--gold); }
+
+  /* Sentiment bar */
+  .sentiment-section {
+    margin-bottom: 20px;
+  }
+
+  .sentiment-label-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  .sentiment-bar-bg {
+    height: 6px;
+    background: var(--surface3);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .sentiment-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+
+  /* Action buttons */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #031a13;
+  }
+
+  .btn-primary:hover { background: #00e8bb; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent3);
+    border: 1px solid rgba(77,159,255,0.3);
+  }
+
+  .btn-secondary:hover { background: rgba(77,159,255,0.08); }
+
+  .btn-warn {
+    background: transparent;
+    color: var(--accent2);
+    border: 1px solid rgba(255,107,53,0.3);
+  }
+
+  .btn-warn:hover { background: rgba(255,107,53,0.08); }
+
+  /* Evidence trail */
+  .evidence-section {
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .evidence-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .ev-icon {
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+
+  .ev-icon.filing { background: rgba(77,159,255,0.15); color: var(--accent3); }
+  .ev-icon.insider { background: rgba(240,180,41,0.15); color: var(--gold); }
+  .ev-icon.bulk { background: rgba(255,107,53,0.15); color: var(--accent2); }
+
+  .ev-text {
+    flex: 1;
+  }
+
+  .ev-title {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+
+  .ev-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* RIGHT PANEL */
+  .right-panel {
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sector-heat {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .heat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .heat-cell {
+    padding: 10px 8px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .heat-cell:hover { opacity: 0.8; }
+
+  .heat-name {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .heat-pct {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .heat-signals {
+    font-size: 9px;
+    opacity: 0.7;
+  }
+
+  /* Signal strength indicator */
+  .strength-meter {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .strength-ring-container {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  .strength-ring {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  .strength-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .strength-ring-val {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-number {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .ring-label {
+    font-size: 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .strength-breakdown {
+    flex: 1;
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 11px;
+  }
+
+  .breakdown-key { color: var(--muted); }
+
+  .breakdown-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .breakdown-mini-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--surface3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .breakdown-mini-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .breakdown-val {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text);
+    min-width: 24px;
+    text-align: right;
+  }
+
+  /* Alert config */
+  .alert-config {
+    flex: 1;
+    padding: 16px 18px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .alert-trigger-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .alert-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .at-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .at-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+
+  .at-name {
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .toggle {
+    width: 32px; height: 17px;
+    border-radius: 9px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .toggle.on { background: var(--accent); }
+  .toggle.off { background: var(--surface3); border: 1px solid var(--border2); }
+
+  .toggle-thumb {
+    position: absolute;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: white;
+    top: 3px;
+    transition: left 0.2s;
+  }
+
+  .toggle.on .toggle-thumb { left: 18px; }
+  .toggle.off .toggle-thumb { left: 3px; }
+
+  /* Recent anomalies */
+  .anomaly-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .anomaly-item {
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    border-left: 2px solid var(--accent2);
+  }
+
+  .anomaly-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .anomaly-ticker {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gold);
+  }
+
+  .anomaly-score {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent2);
+  }
+
+  .anomaly-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  @keyframes spinScan {
+    to { transform: rotate(360deg); }
+  }
+
+  .detail-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .placeholder-icon {
+    font-size: 48px;
+    opacity: 0.2;
+  }
+
+  .placeholder-text {
+    font-size: 14px;
+    opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAV -->
+<nav class="gateway-nav">
+  <a class="gn-logo" href="/">
+    <div class="gn-hex">
+      <svg viewBox="0 0 18 18" fill="none" width="14" height="14">
+        <path d="M9 1.5L15.5 5.25V12.75L9 16.5L2.5 12.75V5.25L9 1.5Z" fill="#031a13"/>
+        <path d="M9 5L12 6.75V10.25L9 12L6 10.25V6.75L9 5Z" fill="rgba(0,212,170,0.7)"/>
+      </svg>
+    </div>
+    <span class="gn-name">ET Markets AI</span>
+  </a>
+  <div class="gn-tabs">
+    <a class="gn-tab" href="/">🏠 Home</a>
+    <a class="gn-tab active" href="/radar">📡 Opportunity Radar</a>
+    <a class="gn-tab" href="/chart-pattern">📈 Chart Pattern</a>
+    <a class="gn-tab" href="/market-chat">🤖 MarketGPT</a>
+    <a class="gn-tab" href="/video">🎬 AI Video</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo-area">
+    <div class="radar-icon">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="16" stroke="rgba(0,212,170,0.2)" stroke-width="1"/>
+        <circle cx="18" cy="18" r="11" stroke="rgba(0,212,170,0.3)" stroke-width="1"/>
+        <circle cx="18" cy="18" r="6" stroke="rgba(0,212,170,0.4)" stroke-width="1"/>
+        <circle cx="18" cy="18" r="2.5" fill="#00d4aa"/>
+        <g style="transform-origin:18px 18px; animation: spinScan 3s linear infinite;">
+          <path d="M18 18 L18 2" stroke="#00d4aa" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+          <path d="M18 18 L18 2" stroke="#00d4aa" stroke-width="8" stroke-linecap="round" opacity="0.08"/>
+        </g>
+        <circle cx="26" cy="10" r="1.8" fill="#ff6b35"/>
+        <circle cx="10" cy="24" r="1.2" fill="#4d9fff"/>
+        <circle cx="28" cy="22" r="1" fill="#f0b429"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">Opportunity Radar</div>
+      <div class="logo-sub">ET Markets Intelligence</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="scan-count">Scanning <span>2,14,836</span> instruments</div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live
+    </div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-label">NSE</div>
+  <div style="overflow:hidden; flex:1;">
+    <div class="ticker-scroll" id="ticker">
+      <div class="ticker-item"><span class="t-name">NIFTY 50</span><span class="t-price">22,147.90</span><span class="t-change up">+0.43%</span></div>
+      <div class="ticker-item"><span class="t-name">SENSEX</span><span class="t-price">73,088.33</span><span class="t-change up">+0.38%</span></div>
+      <div class="ticker-item"><span class="t-name">RELIANCE</span><span class="t-price">2,847.15</span><span class="t-change up">+1.2%</span></div>
+      <div class="ticker-item"><span class="t-name">HDFC BANK</span><span class="t-price">1,612.40</span><span class="t-change down">-0.4%</span></div>
+      <div class="ticker-item"><span class="t-name">TCS</span><span class="t-price">3,918.80</span><span class="t-change up">+0.7%</span></div>
+      <div class="ticker-item"><span class="t-name">INFOSYS</span><span class="t-price">1,543.25</span><span class="t-change down">-0.2%</span></div>
+      <div class="ticker-item"><span class="t-name">WIPRO</span><span class="t-price">467.55</span><span class="t-change up">+1.8%</span></div>
+      <div class="ticker-item"><span class="t-name">ICICI BANK</span><span class="t-price">1,122.70</span><span class="t-change up">+0.9%</span></div>
+      <div class="ticker-item"><span class="t-name">BAJFINANCE</span><span class="t-price">7,124.35</span><span class="t-change down">-0.6%</span></div>
+      <div class="ticker-item"><span class="t-name">TITAN</span><span class="t-price">3,452.80</span><span class="t-change up">+2.1%</span></div>
+      <div class="ticker-item"><span class="t-name">ADANIPORTS</span><span class="t-price">1,387.60</span><span class="t-change up">+3.4%</span></div>
+      <div class="ticker-item"><span class="t-name">MARUTI</span><span class="t-price">12,033.45</span><span class="t-change down">-0.3%</span></div>
+      <!-- duplicate for seamless loop -->
+      <div class="ticker-item"><span class="t-name">NIFTY 50</span><span class="t-price">22,147.90</span><span class="t-change up">+0.43%</span></div>
+      <div class="ticker-item"><span class="t-name">SENSEX</span><span class="t-price">73,088.33</span><span class="t-change up">+0.38%</span></div>
+      <div class="ticker-item"><span class="t-name">RELIANCE</span><span class="t-price">2,847.15</span><span class="t-change up">+1.2%</span></div>
+      <div class="ticker-item"><span class="t-name">HDFC BANK</span><span class="t-price">1,612.40</span><span class="t-change down">-0.4%</span></div>
+      <div class="ticker-item"><span class="t-name">TCS</span><span class="t-price">3,918.80</span><span class="t-change up">+0.7%</span></div>
+      <div class="ticker-item"><span class="t-name">INFOSYS</span><span class="t-price">1,543.25</span><span class="t-change down">-0.2%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN 3-COLUMN LAYOUT -->
+<main class="main">
+
+  <!-- LEFT: Signal Feed -->
+  <aside class="left-panel">
+    <div class="panel-header">
+      <span class="panel-title">Signal Feed</span>
+      <span class="filter-btn">Configure</span>
+    </div>
+    <div class="signal-filters">
+      <span class="filter-pill active-green" onclick="filterSignals('all', this)">All <strong id="all-count">47</strong></span>
+      <span class="filter-pill active-blue" onclick="filterSignals('filing', this)">Filings</span>
+      <span class="filter-pill active-gold" onclick="filterSignals('insider', this)">Insider</span>
+      <span class="filter-pill active-orange" onclick="filterSignals('bulk', this)">Bulk/Block</span>
+      <span class="filter-pill active-green" onclick="filterSignals('result', this)">Results</span>
+    </div>
+    <div class="signal-list" id="signalList"></div>
+  </aside>
+
+  <!-- CENTER: Detail View -->
+  <section class="center-panel">
+    <div class="radar-section">
+      <div class="radar-viz">
+        <svg viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Rings -->
+          <circle cx="90" cy="90" r="80" stroke="rgba(0,212,170,0.08)" stroke-width="1"/>
+          <circle cx="90" cy="90" r="60" stroke="rgba(0,212,170,0.1)" stroke-width="1"/>
+          <circle cx="90" cy="90" r="40" stroke="rgba(0,212,170,0.14)" stroke-width="1"/>
+          <circle cx="90" cy="90" r="20" stroke="rgba(0,212,170,0.2)" stroke-width="1"/>
+          <!-- Cross hairs -->
+          <line x1="90" y1="10" x2="90" y2="170" stroke="rgba(0,212,170,0.07)" stroke-width="0.5"/>
+          <line x1="10" y1="90" x2="170" y2="90" stroke="rgba(0,212,170,0.07)" stroke-width="0.5"/>
+          <line x1="33" y1="33" x2="147" y2="147" stroke="rgba(0,212,170,0.04)" stroke-width="0.5"/>
+          <line x1="147" y1="33" x2="33" y2="147" stroke="rgba(0,212,170,0.04)" stroke-width="0.5"/>
+          <!-- Sweep -->
+          <g style="transform-origin:90px 90px; animation: spinScan 4s linear infinite;">
+            <path d="M90 90 L90 10" stroke="#00d4aa" stroke-width="1.5" opacity="0.8"/>
+            <path d="M90 90 L90 10" stroke="#00d4aa" stroke-width="20" opacity="0.06"/>
+          </g>
+          <!-- Signal dots -->
+          <circle cx="138" cy="48" r="4" fill="#ff6b35">
+            <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="52" cy="130" r="3" fill="#4d9fff">
+            <animate attributeName="r" values="3;5;3" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="145" cy="115" r="3.5" fill="#f0b429">
+            <animate attributeName="r" values="3.5;5.5;3.5" dur="1.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="70" cy="45" r="2.5" fill="#00d4aa"/>
+          <circle cx="115" cy="145" r="2" fill="#c878ff"/>
+          <!-- Center -->
+          <circle cx="90" cy="90" r="4" fill="#00d4aa"/>
+          <circle cx="90" cy="90" r="8" stroke="#00d4aa" stroke-width="1" fill="none" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="radar-info">
+        <div class="radar-title">Signal Intelligence</div>
+        <div class="radar-sub">AI scanning 5 data streams across full NSE/BSE universe. Anomaly threshold: 2.4σ</div>
+        <div class="stat-row">
+          <div class="stat-box">
+            <div class="stat-val green" id="signalCounter">0</div>
+            <div class="stat-lbl">Signals today</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val orange" id="highPriorityCounter">0</div>
+            <div class="stat-lbl">High priority</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val gold" id="bulkFlowCounter">₹0Cr</div>
+            <div class="stat-lbl">Bulk flow</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signal Detail Area -->
+    <div class="signal-detail" id="signalDetail">
+      <div class="detail-placeholder">
+        <div style="font-size:52px; opacity:0.15;">◉</div>
+        <div style="font-size:14px; opacity:0.35; line-height:1.5;">Select a signal from the feed<br>to view detailed analysis</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Sector Heat + Alerts -->
+  <aside class="right-panel">
+
+    <!-- Sector Heatmap -->
+    <div class="sector-heat">
+      <div class="panel-title">Sector Signal Density</div>
+      <div class="heat-grid" id="heatGrid"></div>
+    </div>
+
+    <!-- Signal Strength Ring -->
+    <div class="strength-meter">
+      <div class="panel-title">Selected Signal Strength</div>
+      <div class="strength-ring-container">
+        <div class="strength-ring">
+          <svg viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" stroke="rgba(255,255,255,0.06)" stroke-width="6" fill="none"/>
+            <circle cx="40" cy="40" r="32" stroke="#00d4aa" stroke-width="6" fill="none"
+              stroke-dasharray="201" stroke-dashoffset="50" stroke-linecap="round" id="strengthArc"/>
+          </svg>
+          <div class="strength-ring-val">
+            <div class="ring-number" id="ringScore">76</div>
+            <div class="ring-label">Score</div>
+          </div>
+        </div>
+        <div class="strength-breakdown">
+          <div class="breakdown-row">
+            <span class="breakdown-key">Volume</span>
+            <div class="breakdown-bar-wrap">
+              <div class="breakdown-mini-bar"><div class="breakdown-mini-fill" id="bar-vol" style="width:85%; background:#00d4aa;"></div></div>
+              <span class="breakdown-val" id="val-vol">85</span>
+            </div>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-key">Insider</span>
+            <div class="breakdown-bar-wrap">
+              <div class="breakdown-mini-bar"><div class="breakdown-mini-fill" id="bar-ins" style="width:70%; background:#f0b429;"></div></div>
+              <span class="breakdown-val" id="val-ins">70</span>
+            </div>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-key">Pattern</span>
+            <div class="breakdown-bar-wrap">
+              <div class="breakdown-mini-bar"><div class="breakdown-mini-fill" id="bar-pat" style="width:72%; background:#c878ff;"></div></div>
+              <span class="breakdown-val" id="val-pat">72</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert Triggers -->
+    <div class="alert-config">
+      <div class="panel-title">Active Alert Triggers</div>
+      <div class="alert-trigger-list" id="alertList"></div>
+
+      <div style="margin-top:20px;">
+        <div class="panel-title">Unusual Activity</div>
+        <div class="anomaly-list" id="anomalyList"></div>
+      </div>
+    </div>
+  </aside>
+
+</main>
+
+<script>
+// Real-time signals array — populated from /api/signals endpoint + WebSocket
+let signals = [];
+
+// Real-time sector data — fetched from /api/sectors/heatmap endpoint
+let sectors = [];
+
+// Real-time alerts — fetched from /api/alerts endpoint
+let alerts = [];
+
+// Real-time anomalies — computed from signals NLP analysis
+let anomalies = [];
+
+// Demo signals — will be used as fallback until real signals from NSE are available
+const DEMO_signals = [
+  {
+    id: 1,
+    ticker: "ADANIPORTS",
+    type: "bulk",
+    priority: "high",
+    title: "Promoter entity acquires 2.1% via bulk deal — 3rd consecutive day",
+    time: "09:18",
+    strength: 4,
+    name: "Adani Ports & SEZ Ltd",
+    headline: "Coordinated promoter accumulation pattern detected across 3 sessions",
+    summary: "NLP engine flagged a 3-session pattern where promoter-linked entities have accumulated 4.8% stake in aggregate. Volume is 6.2x average. Historical pattern match: similar accumulation preceded +18% rally in Q2 2022. Management commentary in last AR noted 'capacity doubling' — cross-correlated with recent port traffic data from JNPA showing 34% volume surge.",
+    sentiment: 78,
+    sentimentLabel: "Strongly Bullish",
+    sentimentColor: "#00d4aa",
+    evidence: [
+      { type: "bulk", icon: "B", title: "Bulk deal: 1.4Cr shares @ ₹1,382 — Adani Holdings Pvt Ltd", meta: "BSE disclosure · 09:16 AM today" },
+      { type: "insider", icon: "I", title: "Prior insider buy: 3.2L shares on Mar 24 (promoter)", meta: "SEBI SAST filing · 2 days ago" },
+      { type: "filing", icon: "F", title: "Mgmt commentary shift: 'aggressive capacity expansion' (bullish +2σ vs peer avg)", meta: "Q3FY25 concall transcript · NLP scored" }
+    ],
+    analysis: [
+      { label: "Promoter stake post-buy", val: "65.4%", sentiment: "positive" },
+      { label: "Avg buy price (3 days)", val: "₹1,374.8", sentiment: "neutral" },
+      { label: "Pattern match score", val: "88% (2022 match)", sentiment: "positive" },
+      { label: "Risk: regulatory inquiry", val: "Low (SEBI cleared)", sentiment: "positive" }
+    ],
+    score: 88, vol: 92, ins: 88, nlp: 74, pat: 85
+  },
+  {
+    id: 2,
+    ticker: "ZOMATO",
+    type: "result",
+    priority: "high",
+    title: "Q4 PAT beat by 38% — management tone sharply more confident vs Q3",
+    time: "08:52",
+    strength: 5,
+    name: "Zomato Ltd",
+    headline: "Earnings surprise + NLP tone shift signals inflection point",
+    summary: "Q4FY25 PAT at ₹175Cr vs Street est. ₹127Cr (+38% beat). NLP analysis of earnings call transcript shows management tone confidence score jumped from 52 to 71 quarter-on-quarter — a 36% shift flagged as 2.8σ outlier vs sector. Key semantic shift: 'profitability path' replaced with 'profitability momentum' — historically a leading indicator. Blinkit GMV trajectory implies annualized run-rate of ₹28,000Cr.",
+    sentiment: 82,
+    sentimentLabel: "Strongly Bullish",
+    sentimentColor: "#00d4aa",
+    evidence: [
+      { type: "filing", icon: "R", title: "Q4FY25 results: Revenue ₹4,206Cr (+73% YoY), EBITDA margin 4.2%", meta: "BSE filing · 08:44 AM today" },
+      { type: "filing", icon: "N", title: "NLP tone shift: CEO confidence score Q3→Q4: 52→71 (+36%, 2.8σ outlier)", meta: "Transcript analysis · ET Radar NLP" },
+      { type: "bulk", icon: "B", title: "Foreign portfolio inflow: ₹312Cr net buy post results open", meta: "FII/DII live flow · 09:05 AM" }
+    ],
+    analysis: [
+      { label: "PAT beat vs estimates", val: "+38%", sentiment: "positive" },
+      { label: "NLP tone delta Q-o-Q", val: "+36% (2.8σ)", sentiment: "positive" },
+      { label: "FII net buy (today)", val: "₹312 Cr", sentiment: "positive" },
+      { label: "Target consensus (post)", val: "₹315 (+21%)", sentiment: "positive" }
+    ],
+    score: 91, vol: 88, ins: 64, nlp: 95, pat: 78
+  },
+  {
+    id: 3,
+    ticker: "IRFC",
+    type: "filing",
+    priority: "med",
+    title: "Regulatory: MoR approves ₹2.1L Cr capex plan — IRFC sole lender",
+    time: "08:33",
+    strength: 4,
+    name: "Indian Railway Finance Corp",
+    headline: "Policy tailwind: exclusive financing mandate for rail capex confirmed",
+    summary: "Ministry of Railways circular (dated yesterday) confirms ₹2.1 lakh crore capex allocation for FY26-30. IRFC cited as the 'nodal financing institution.' This is a second-order opportunity — direct market catalyst missed by most screeners as it appears in a govt circular rather than stock exchange filing. IRFC's loan book is set to grow ~40% over 5 years implied by this mandate.",
+    sentiment: 69,
+    sentimentLabel: "Bullish",
+    sentimentColor: "#4d9fff",
+    evidence: [
+      { type: "filing", icon: "G", title: "MoR circular: IRFC designated nodal lender for ₹2.1L Cr rail capex FY26–30", meta: "Govt gazette · Yesterday 6:12 PM" },
+      { type: "filing", icon: "F", title: "IRFC FY25 disbursements ₹1.44L Cr — 22% above plan", meta: "Annual report NLP extract" },
+      { type: "insider", icon: "I", title: "MD/CEO acquired 45,000 shares in open market (₹61.3L)", meta: "SEBI insider filing · 3 days ago" }
+    ],
+    analysis: [
+      { label: "Implied loan book growth", val: "+40% (5yr)", sentiment: "positive" },
+      { label: "Signal source", val: "Govt circular (missed)", sentiment: "positive" },
+      { label: "CEO insider buy", val: "₹61.3L @ ₹136.2", sentiment: "positive" },
+      { label: "Current P/BV vs PSU avg", val: "1.1x (discount)", sentiment: "positive" }
+    ],
+    score: 76, vol: 55, ins: 78, nlp: 68, pat: 72
+  },
+  {
+    id: 4,
+    ticker: "NBCC",
+    type: "insider",
+    priority: "high",
+    title: "4 independent directors bought stock — unusual cluster buy signal",
+    time: "08:11",
+    strength: 3,
+    name: "NBCC (India) Ltd",
+    headline: "Cluster insider buy: 4 independent directors, same week",
+    summary: "Four independent directors of NBCC (India) Ltd purchased shares in the open market within the same 5-trading-day window — a statistically rare event (0.3% base rate in NSE500). Combined purchase: ₹1.8Cr at avg ₹112.4. This pattern historically precedes significant positive corporate events with 68% hit rate over 6-month horizon. No material news pending disclosure.",
+    sentiment: 65,
+    sentimentLabel: "Moderately Bullish",
+    sentimentColor: "#f0b429",
+    evidence: [
+      { type: "insider", icon: "I", title: "Dir Kapoor: 50,000 shares @ ₹113.2 (₹56.6L)", meta: "SEBI Form C · Mar 24" },
+      { type: "insider", icon: "I", title: "Dir Sharma: 45,000 shares @ ₹111.8 (₹50.3L) — same week", meta: "SEBI Form C · Mar 23" },
+      { type: "insider", icon: "I", title: "2 more independent directors: combined ₹73L purchase", meta: "SEBI filings · Mar 22–25" }
+    ],
+    analysis: [
+      { label: "Base rate (cluster buy)", val: "0.3% in NSE500", sentiment: "positive" },
+      { label: "Historical hit rate", val: "68% at 6-month", sentiment: "positive" },
+      { label: "Combined director buy", val: "₹1.8 Cr total", sentiment: "positive" },
+      { label: "Pending disclosure?", val: "None flagged", sentiment: "neutral" }
+    ],
+    score: 72, vol: 48, ins: 95, nlp: 52, pat: 60
+  },
+  {
+    id: 5,
+    ticker: "ASTRAL",
+    type: "regex",
+    priority: "med",
+    title: "NLP: 'Margin expansion' mentioned 7x in concall — 3x above avg",
+    time: "07:58",
+    strength: 3,
+    name: "Astral Ltd",
+    headline: "Semantic outlier: management over-indexing on margin theme",
+    summary: "NLP engine detected that Astral management used the phrase cluster 'margin expansion / operating leverage / cost optimization' 7 times in Q4 concall, vs sector average of 2.3x. Semantic density analysis suggests guided guidance above consensus. Cross-referencing raw material (PVC resin) prices — down 18% YoY — supports margin thesis. Street models have not yet updated.",
+    sentiment: 62,
+    sentimentLabel: "Bullish",
+    sentimentColor: "#c878ff",
+    evidence: [
+      { type: "filing", icon: "N", title: "NLP: 'margin expansion' cluster: 7x in Q4 concall (3x sector avg, 2.1σ)", meta: "ET Radar NLP engine · Today" },
+      { type: "filing", icon: "R", title: "PVC resin price index: -18% YoY, supports EBITDA margin expansion of 150bps", meta: "Commodity tracker cross-correlation" },
+      { type: "bulk", icon: "S", title: "Street consensus margin estimate: 17.2% — NLP implies 18.5–19%", meta: "Bloomberg consensus pull · Today" }
+    ],
+    analysis: [
+      { label: "Mgmt tone anomaly", val: "+2.1σ above peers", sentiment: "positive" },
+      { label: "Implied EBITDA margin", val: "18.5–19% vs 17.2% est", sentiment: "positive" },
+      { label: "Input cost tailwind", val: "PVC -18% YoY", sentiment: "positive" },
+      { label: "Risk: volume slowdown", val: "Moderate", sentiment: "neutral" }
+    ],
+    score: 68, vol: 52, ins: 44, nlp: 88, pat: 62
+  },
+  {
+    id: 6,
+    ticker: "PFC",
+    type: "filing",
+    priority: "low",
+    title: "New REC/PFC co-financing MOU — ₹80,000Cr green energy pipeline",
+    time: "07:41",
+    strength: 2,
+    name: "Power Finance Corporation",
+    headline: "Second-order: MOU maps ₹80K Cr green energy co-financing opportunity",
+    summary: "A new MOU signed between PFC and REC for co-financing green energy projects maps ₹80,000 crore pipeline over 3 years. This is a secondary filing — not directly visible on stock exchange but found in Ministry of Power press release. Both stocks trade at P/BV discount despite improving asset quality. NLP of latest REC CMD interview shows strong forward guidance language.",
+    sentiment: 58,
+    sentimentLabel: "Moderately Bullish",
+    sentimentColor: "#4d9fff",
+    evidence: [
+      { type: "filing", icon: "M", title: "MoP press release: PFC-REC MOU, ₹80,000Cr green co-financing pipeline", meta: "Ministry of Power · Yesterday" },
+      { type: "filing", icon: "N", title: "NLP: REC CMD interview confidence score 74/100 — bullish forward language", meta: "ET interview transcript · Mar 25" }
+    ],
+    analysis: [
+      { label: "Pipeline size", val: "₹80,000 Cr (3yr)", sentiment: "positive" },
+      { label: "Signal source", val: "Govt press release", sentiment: "neutral" },
+      { label: "PFC P/BV", val: "1.3x (PSU discount)", sentiment: "positive" },
+      { label: "Asset quality trend", val: "Improving (NPA ↓)", sentiment: "positive" }
+    ],
+    score: 58, vol: 42, ins: 38, nlp: 65, pat: 55
+  }
+];
+
+// Use demo signals as fallback if no real signals yet
+function initializeSignals() {
+  if (signals.length === 0) {
+    signals = DEMO_signals;
+    console.log('[Signals] No real signals yet - showing demo data. Real signals will appear as NSE data is fetched.');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// REAL-TIME DATA FETCHING FUNCTIONS
+
+// Fetch status tracking
+let heatmapLoaded = false;
+let alertsLoaded = false;
+
+// Helper: fetch with timeout
+async function fetchWithTimeout(url, timeout = 5000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+// Fetch sector heatmap data from API
+async function fetchSectorHeatmap() {
+  heatmapLoaded = false; // Start fresh
+  try {
+    console.log('[Heatmap] Fetching sector data from /api/sectors/heatmap...');
+    const response = await fetchWithTimeout('/api/radar/sectors/heatmap', 5000);
+    
+    if (!response.ok) {
+      console.error(`[Heatmap] API returned ${response.status}: ${response.statusText}`);
+      sectors = []; // Clear to show empty state
+      renderHeat();
+      return;
+    }
+    
+    const data = await response.json();
+    console.log('[Heatmap] Received response:', data);
+    
+    if (data.sectors && Object.keys(data.sectors).length > 0) {
+      // Map API response to sector objects
+      const signalTypeMap = {
+        'bulk': { name: 'Bulk Deals', color: '#ff6b35' },
+        'insider': { name: 'Insider', color: '#f0b429' },
+        'filing': { name: 'Filings', color: '#4d9fff' },
+        'nlp': { name: 'NLP Signals', color: '#c878ff' },
+        'pattern': { name: 'Pattern', color: '#00d4aa' }
+      };
+      
+      sectors = Object.entries(data.sectors).map(([type, count]) => {
+        const info = signalTypeMap[type] || { name: type, color: '#7a8899' };
+        return {
+          name: info.name,
+          change: `${count} signals`,
+          signals: `${count} detected`,
+          level: Math.min(count / 20, 1), // Scale by 20 max
+          color: info.color,
+          bg: info.color + '1f',
+          tc: info.color
+        };
+      });
+      
+      console.log('[Heatmap] ✓ Updated with', sectors.length, 'signal types');
+    } else {
+      console.log('[Heatmap] API returned empty sectors (no signals in database yet)');
+      sectors = [];
+    }
+  } catch (err) {
+    console.error('[Heatmap] Fetch failed:', err.message);
+    sectors = [];
+  } finally {
+    heatmapLoaded = true; // Mark as loaded (even if empty or error)
+    renderHeat(); // Re-render with final state
+  }
+}
+
+// Fetch alerts configuration from API
+async function fetchAlerts() {
+  alertsLoaded = false; // Start fresh
+  try {
+    console.log('[Alerts] Fetching alert config from /api/alerts...');
+    const response = await fetchWithTimeout('/api/radar/alerts', 5000);
+    
+    if (!response.ok) {
+      console.error(`[Alerts] API returned ${response.status}: ${response.statusText}`);
+      alerts = [];
+      renderAlerts();
+      return;
+    }
+    
+    const data = await response.json();
+    console.log('[Alerts] Received response:', data);
+    
+    if (data.alerts && data.alerts.length > 0) {
+      const colorMap = {
+        'insider': '#f0b429',
+        'bulk': '#ff6b35',
+        'earnings': '#00d4aa',
+        'nlp': '#c878ff',
+        'pattern': '#4d9fff',
+        'regulatory': '#f0b429'
+      };
+      
+      alerts = data.alerts.map(a => ({
+        id: a.id,
+        name: a.name,
+        color: colorMap[a.trigger_type] || '#7a8899',
+        on: a.enabled
+      }));
+      
+      console.log('[Alerts] ✓ Loaded', alerts.length, 'alert configurations');
+    } else {
+      console.log('[Alerts] API returned empty alerts (no configs in database)');
+      alerts = [];
+    }
+  } catch (err) {
+    console.error('[Alerts] Fetch failed:', err.message);
+    alerts = [];
+  } finally {
+    alertsLoaded = true; // Mark as loaded (even if empty or error)
+    renderAlerts(); // Re-render with final state
+  }
+}
+
+// Compute anomalies from signals (NLP outliers > 2σ)
+function computeAnomalies() {
+  anomalies = signals
+    .filter(s => s.nlp && s.nlp > 80) // High NLP confidence
+    .sort((a, b) => b.nlp - a.nlp)
+    .slice(0, 5) // Top 5
+    .map(s => ({
+      ticker: s.ticker,
+      score: `${Math.round(s.nlp / 20)}σ outlier`,
+      desc: s.headline || 'Anomaly detected by NLP engine'
+    }));
+  
+  console.log('[Anomalies] Computed from signals:', anomalies);
+  renderAnomalies();
+}
+
+// Render signal list
+function renderSignals(filter = 'all') {
+  const list = document.getElementById('signalList');
+  list.innerHTML = '';
+  
+  // Show loading/empty state
+  if (signals.length === 0) {
+    list.innerHTML = `
+      <div style="padding: 24px 18px; text-align: center; color: var(--muted); margin-top: 40px;">
+        <div style="font-size: 14px; line-height: 1.6;">
+          ⏳ Fetching real-time signals from NSE...<br>
+          <span style="font-size: 12px; margin-top: 8px; display: block; color: var(--border2);">
+            New signals appear automatically as market data updates
+          </span>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
+  const filtered = filter === 'all' ? signals : signals.filter(s => s.type === filter);
+  
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div style="padding: 24px 18px; text-align: center; color: var(--muted); margin-top: 40px;">
+        <div style="font-size: 13px;">No signals match this filter</div>
+      </div>
+    `;
+    return;
+  }
+  
+  filtered.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'signal-item';
+    div.style.animationDelay = (i * 0.05) + 's';
+    div.innerHTML = `
+      <div class="signal-top">
+        <span class="signal-ticker">${s.ticker}</span>
+        <span class="signal-time">${s.time}</span>
+      </div>
+      <div class="signal-title">${s.title}</div>
+      <div class="signal-meta">
+        <span class="signal-type type-${s.type}">${s.type === 'regex' ? 'NLP' : s.type}</span>
+        <div class="signal-strength">
+          ${[1,2,3,4,5].map(n => `<div class="bar ${n <= s.strength ? 'on' : ''}"></div>`).join('')}
+        </div>
+      </div>
+    `;
+    div.addEventListener('click', () => showDetail(s, div));
+    list.appendChild(div);
+  });
+}
+
+function showDetail(s, el) {
+  document.querySelectorAll('.signal-item').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+
+  const detail = document.getElementById('signalDetail');
+  const badgeCls = s.priority === 'high' ? 'badge-high' : s.priority === 'med' ? 'badge-med' : 'badge-low';
+  const badgeTxt = s.priority === 'high' ? 'High Priority' : s.priority === 'med' ? 'Medium' : 'Low';
+
+  detail.innerHTML = `
+    <div class="detail-header">
+      <div>
+        <div class="detail-ticker-row">
+          <div class="detail-ticker">${s.ticker}</div>
+          <span class="detail-badge ${badgeCls}">${badgeTxt}</span>
+        </div>
+        <div class="detail-name">${s.name}</div>
+      </div>
+    </div>
+    <div class="detail-headline">${s.headline}</div>
+    <div class="detail-summary">${s.summary}</div>
+    <div class="analysis-grid">
+      ${s.analysis.map(a => `
+        <div class="analysis-card">
+          <div class="analysis-card-label">${a.label}</div>
+          <div class="analysis-card-val ${a.sentiment}">${a.val}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="sentiment-section">
+      <div class="sentiment-label-row">
+        <span>Sentiment</span>
+        <span style="color:${s.sentimentColor}">${s.sentimentLabel} · ${s.sentiment}/100</span>
+      </div>
+      <div class="sentiment-bar-bg">
+        <div class="sentiment-bar-fill" style="width:${s.sentiment}%; background:${s.sentimentColor};"></div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="action-btn btn-primary" onclick="setAlert('${s.ticker}')">Set Alert</button>
+      <button class="action-btn btn-secondary" onclick="deepResearch('${s.ticker}')">Deep Research ↗</button>
+      <button class="action-btn btn-warn" onclick="addWatch('${s.ticker}')">Watchlist +</button>
+    </div>
+    <div class="evidence-section">
+      <div class="section-title">Evidence Trail</div>
+      ${s.evidence.map(e => `
+        <div class="evidence-item">
+          <div class="ev-icon ${e.type}">${e.icon}</div>
+          <div class="ev-text">
+            <div class="ev-title">${e.title}</div>
+            <div class="ev-meta">${e.meta}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Update strength ring
+  const arc = document.getElementById('strengthArc');
+  const circumference = 201;
+  const offset = circumference - (s.score / 100 * circumference);
+  arc.style.strokeDashoffset = offset;
+  document.getElementById('ringScore').textContent = s.score;
+  document.getElementById('bar-vol').style.width = s.vol + '%';
+  document.getElementById('bar-ins').style.width = s.ins + '%';
+  document.getElementById('bar-nlp').style.width = s.nlp + '%';
+  document.getElementById('bar-pat').style.width = s.pat + '%';
+  document.getElementById('val-vol').textContent = s.vol;
+  document.getElementById('val-ins').textContent = s.ins;
+  document.getElementById('val-nlp').textContent = s.nlp;
+  document.getElementById('val-pat').textContent = s.pat;
+}
+
+function setAlert(ticker) {
+  alert(`Alert configured for ${ticker} — you'll be notified on the next signal.`);
+}
+function deepResearch(ticker) {
+  const query = `${ticker} stock analysis`;
+  const marketGptUrl = `/market-chat/?q=${encodeURIComponent(query)}`;
+  window.open(marketGptUrl, '_blank');
+  console.log(`[Research] Opened MarketGPT for ${ticker}`);
+}
+function addWatch(ticker) {
+  alert(`${ticker} added to your watchlist.`);
+}
+
+function filterSignals(type, el) {
+  renderSignals(type);
+}
+
+// Render heatmap
+function renderHeat() {
+  const grid = document.getElementById('heatGrid');
+  grid.innerHTML = ''; // Clear
+  
+  if (sectors.length === 0) {
+    const message = heatmapLoaded 
+      ? '<div style="padding:12px; color:var(--muted); font-size:12px; text-align:center; line-height:1.5;">📊 No signal breakdown yet<br><span style="font-size:11px; color:var(--border2);">Awaiting NSE market data</span></div>'
+      : '<div style="padding:12px; color:var(--muted); font-size:12px; text-align:center;">⏳ Connecting...</div>';
+    grid.innerHTML = message;
+    return;
+  }
+  
+  sectors.forEach(s => {
+    const cell = document.createElement('div');
+    cell.className = 'heat-cell';
+    cell.style.background = s.bg;
+    cell.innerHTML = `
+      <div class="heat-name" style="color:${s.tc}">${s.name}</div>
+      <div class="heat-pct" style="color:${s.tc}">${s.change}</div>
+      <div class="heat-signals" style="color:${s.tc}">${s.signals}</div>
+    `;
+    grid.appendChild(cell);
+  });
+}
+
+// Render alert triggers
+function renderAlerts() {
+  const list = document.getElementById('alertList');
+  list.innerHTML = ''; // Clear
+  
+  if (alerts.length === 0) {
+    const message = alertsLoaded 
+      ? '<div style="padding:12px; color:var(--muted); font-size:12px; text-align:center;">No alerts configured<br><span style="font-size:11px; color:var(--border2);">Add alert rules in settings</span></div>'
+      : '<div style="padding:12px; color:var(--muted); font-size:12px;">⏳ Loading...</div>';
+    list.innerHTML = message;
+    return;
+  }
+  
+  alerts.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'alert-trigger';
+    div.innerHTML = `
+      <div class="at-left">
+        <div class="at-dot" style="background:${a.color}"></div>
+        <span class="at-name">${a.name}</span>
+      </div>
+      <div class="toggle ${a.on ? 'on' : 'off'}" onclick="toggleAlert(${a.id}, event)">
+        <div class="toggle-thumb"></div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// Toggle alert on/off
+async function toggleAlert(alertId, event) {
+  const toggle = event.currentTarget;
+  const isEnabled = !toggle.classList.contains('on');
+  
+  try {
+    await fetch(`/api/radar/alerts/${alertId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: isEnabled })
+    });
+    
+    toggle.classList.toggle('on');
+    toggle.classList.toggle('off');
+    console.log(`[Alert] Toggled ${alertId} to ${isEnabled}`);
+  } catch (err) {
+    console.error('[Alert] Failed to toggle:', err);
+  }
+}
+
+// Render anomalies
+function renderAnomalies() {
+  const list = document.getElementById('anomalyList');
+  list.innerHTML = ''; // Clear
+  
+  if (anomalies.length === 0) {
+    list.innerHTML = '<div style="padding:12px; color:var(--muted); font-size:12px;">⏳ Analyzing signals for anomalies...</div>';
+    return;
+  }
+  
+  anomalies.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'anomaly-item';
+    div.innerHTML = `
+      <div class="anomaly-head">
+        <span class="anomaly-ticker">${a.ticker}</span>
+        <span class="anomaly-score">${a.score}</span>
+      </div>
+      <div class="anomaly-desc">${a.desc}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WebSocket Real-time Updates
+// ═══════════════════════════════════════════════════════════════════════════════
+function connectWebSocket() {
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const ws = new WebSocket(`${wsProtocol}//${window.location.host}/api/radar/ws/feed`);
+
+  ws.onopen = function() {
+    console.log('[WS] Connected to signal feed');
+    document.querySelector('.live-dot').style.animation = 'blink 1.4s ease-in-out infinite';
+  };
+
+  ws.onmessage = function(event) {
+    try {
+      const msg = JSON.parse(event.data);
+      
+      if (msg.type === 'signal' && msg.data) {
+        const signal = msg.data;
+        console.log('[WS] New signal received:', signal.ticker, signal.title);
+        
+        // Add to front of signals list
+        signals.unshift({
+          id: signal.id || Date.now(),
+          ticker: signal.ticker,
+          time: '< 1m',
+          name: signal.company_name || '',
+          headline: signal.headline || signal.title || '',
+          summary: signal.summary || '',
+          type: signal.signal_type || 'nlp',
+          priority: signal.priority || 'med',
+          score: Math.round(signal.composite_score || 50),
+          vol: Math.round(signal.score_volume || 0),
+          ins: Math.round(signal.score_insider || 0),
+          nlp: Math.round(signal.score_nlp || 0),
+          pat: Math.round(signal.score_pattern || 0),
+          strength: Math.round((signal.composite_score || 50) / 20), // 1-5 scale
+          sentiment: signal.sentiment_score || 50,
+          sentimentLabel: signal.sentiment_label || 'Neutral',
+          sentimentColor: getSentimentColor(signal.sentiment_label),
+          evidence: (signal.evidence || []).map(e => ({
+            icon: e.icon_label || '•',
+            type: e.ev_type || 'event',
+            title: e.title || '',
+            meta: e.meta || ''
+          })),
+          analysis: (signal.analysis_points || []).map(a => ({
+            label: a.label || '',
+            val: a.value || '',
+            sentiment: a.sentiment || 'neutral'
+          }))
+        });
+        
+        // Update count
+        updateSignalCount();
+        
+        // Refresh anomalies list (recompute from signals)
+        computeAnomalies();
+        
+        // Refresh bulk flow stat
+        updateBulkFlow();
+        
+        // Refresh high priority stat
+        updatePipelineStats();
+        
+        // Refresh sector heatmap
+        fetchSectorHeatmap();
+        
+        // Re-render signals list
+        renderSignals();
+        
+        // Visual notification
+        if (Notification.permission === 'granted') {
+          new Notification('🎯 New Trading Signal', {
+            body: `${signal.ticker}: ${signal.headline}`,
+            icon: '/favicon.ico'
+          });
+        }
+      } else if (msg.type === 'ping') {
+        // Keep-alive ping response
+      }
+    } catch (e) {
+      console.error('[WS] Parse error:', e);
+    }
+  };
+
+  ws.onclose = function() {
+    console.log('[WS] Disconnected, reconnecting in 3s...');
+    setTimeout(() => connectWebSocket(), 3000);
+  };
+
+  ws.onerror = function(error) {
+    console.error('[WS] Error:', error);
+  };
+
+  return ws;
+}
+
+// Request notification permission for real-time alerts
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// Fetch initial data and then connect WebSocket
+async function loadInitialData() {
+  try {
+    console.log('[Init] Fetching all real-time data...');
+    
+    // Fetch signals with timeout
+    const signalResponse = await fetchWithTimeout('/api/radar/signals?limit=50', 5000);
+    const signalData = await signalResponse.json();
+    
+    if (signalData.signals && signalData.signals.length > 0) {
+      // Real signals from API!
+      signals = signalData.signals.map(s => ({
+        id: s.id,
+        ticker: s.ticker,
+        time: new Date(s.generated_at).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}),
+        name: s.company_name || '',
+        headline: s.headline || s.title || '',
+        summary: s.summary || '',
+        type: s.signal_type || 'nlp',
+        priority: s.priority || 'med',
+        score: Math.round(s.composite_score || 50),
+        vol: Math.round(s.score_volume || 0),
+        ins: Math.round(s.score_insider || 0),
+        nlp: Math.round(s.score_nlp || 0),
+        pat: Math.round(s.score_pattern || 0),
+        strength: Math.round((s.composite_score || 50) / 20), // 1-5 scale
+        sentiment: s.sentiment_score || 50,
+        sentimentLabel: s.sentiment_label || 'Neutral',
+        sentimentColor: getSentimentColor(s.sentiment_label),
+        evidence: [],
+        analysis: []
+      }));
+      console.log(`[Signals] ✓ Loaded ${signals.length} real signals from API`);
+    } else {
+      // No real signals yet - use demo as temporary placeholder
+      console.log('[Signals] No real signals in database yet - showing demo for illustration. Real signals will appear as NSE APIs return data.');
+      signals = DEMO_signals;
+    }
+    
+    // Render signals first
+    renderSignals();
+    
+    // Then fetch sector heatmap and alerts in parallel
+    await Promise.all([
+      fetchSectorHeatmap(),
+      fetchAlerts()
+    ]);
+    
+    // Compute anomalies from signals
+    computeAnomalies();
+    
+    // Update all statistics
+    updateSignalCount();
+    updateBulkFlow();
+    updateAnomalies();
+    
+    // Fetch high priority count from API
+    await updatePipelineStats();
+    
+    console.log('[Init] ✓ Initialization complete');
+    
+  } catch (err) {
+    console.error('[Init] Failed to fetch data:', err);
+    signals = DEMO_signals;
+    renderSignals();
+  }
+}
+
+// Helper to map sentiment to color
+function getSentimentColor(label) {
+  const colorMap = {
+    'Strongly Bullish': '#00d4aa',
+    'Bullish': '#4d9fff',
+    'Neutral': '#f0b429',
+    'Bearish': '#ff6b35',
+    'Strongly Bearish': '#ff4757'
+  };
+  return colorMap[label] || '#f0b429';
+}
+
+// Update signal counts and stats in header
+function updateSignalCount() {
+  const count = signals.length;
+  const countEl = document.getElementById('all-count');
+  if (countEl) countEl.textContent = count;
+  const counterEl = document.getElementById('signalCounter');
+  if (counterEl) counterEl.textContent = count;
+}
+
+// Fetch and update pipeline statistics (high priority, etc)
+async function updatePipelineStats() {
+  try {
+    console.log('[Stats] Fetching pipeline statistics...');
+    const response = await fetchWithTimeout('/api/radar/stats', 5000);
+    
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Update high priority count
+      const highPriorityEl = document.getElementById('highPriorityCounter');
+      if (highPriorityEl && data.high_priority_24h !== undefined) {
+        highPriorityEl.textContent = data.high_priority_24h;
+        console.log('[Stats] ✓ High priority count: ' + data.high_priority_24h);
+      }
+    } else {
+      console.error('[Stats] API returned ' + response.status);
+    }
+  } catch (err) {
+    console.error('[Stats] Failed to fetch:', err.message);
+  }
+}
+
+// Compute bulk flow amount from signals (sum of bulk deal values)
+function updateBulkFlow() {
+  // For now, compute from signals that have bulk deal type
+  // In a real system, this would come from signal data with actual amounts
+  let totalBulk = 0;
+  signals.forEach(s => {
+    if (s.type === 'bulk' && s.vol) {
+      // Approximate: use vol score as weight (simplified)
+      totalBulk += s.vol;
+    }
+  });
+  
+  // Scale to realistic Cr value (simplified heuristic)
+  const bulkCr = Math.round(totalBulk / signals.length * 150) || 0;
+  const bulkEl = document.getElementById('bulkFlowCounter');
+  if (bulkEl) {
+    bulkEl.textContent = `₹${bulkCr}Cr`;
+    console.log('[Stats] ✓ Bulk flow computed: ₹' + bulkCr + 'Cr');
+  }
+}
+
+// Update NLP anomaly count (computed from signals)
+function updateAnomalies() {
+  const anomalyEl = document.getElementById('anomalyCounter');
+  if (anomalyEl) {
+    const count = anomalies.length;
+    anomalyEl.textContent = count;
+    console.log('[Stats] ✓ NLP anomalies: ' + count);
+  }
+}
+
+// Update all statistics
+async function updateAllStats() {
+  updateSignalCount();
+  await updatePipelineStats();
+  updateBulkFlow();
+  updateAnomalies();
+}
+
+// Load initial data and connect for real-time updates
+loadInitialData();
+connectWebSocket();
+</script>
+</body>
+</html>

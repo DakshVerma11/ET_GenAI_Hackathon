@@ -3,10 +3,8 @@ FastAPI Backend for Chart Pattern Intelligence
 NSE Stock Pattern Detection with Live Signal Generation
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Query
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, Response
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Query
+from fastapi.responses import JSONResponse, Response
 import json
 import threading
 import time
@@ -60,24 +58,9 @@ class NumpyJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 # ─────────────────────────────────────────────
-# FASTAPI APP INITIALIZATION
+# API ROUTER INITIALIZATION
 # ─────────────────────────────────────────────
-app = FastAPI(
-    title="Chart Pattern Intelligence API",
-    description="Real-time technical pattern detection for NSE stocks",
-    version="1.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc"
-)
-
-# Add CORS middleware for frontend access
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 # ─────────────────────────────────────────────
 # GLOBAL STATE
@@ -143,7 +126,7 @@ def load_cached_signals():
 # ─────────────────────────────────────────────
 # STARTUP & SHUTDOWN
 # ─────────────────────────────────────────────
-@app.on_event("startup")
+@router.on_event("startup")
 async def startup_event():
     """Load cached signals and trigger auto-scan on startup"""
     print("[STARTUP] Loading cached signals...")
@@ -161,13 +144,10 @@ async def startup_event():
 # API ROUTES
 # ─────────────────────────────────────────────
 
-@app.get("/")
-async def root():
-    """Serve the main HTML dashboard"""
-    return FileResponse("index.html", media_type="text/html")
+# The root HTML is now served by the main gateway app, so we remove the / route.
 
 
-@app.get("/api/health")
+@router.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {
@@ -178,7 +158,7 @@ async def health_check():
     }
 
 
-@app.get("/api/signals")
+@router.get("/signals")
 async def get_signals(
     direction: Optional[str] = Query(None, description="Filter by 'bullish' or 'bearish'"),
     min_conviction: Optional[int] = Query(None, description="Minimum conviction score (0-100)"),
@@ -218,7 +198,7 @@ async def get_signals(
     }
 
 
-@app.get("/api/signals/{symbol}")
+@router.get("/signals/{symbol}")
 async def get_signal_by_symbol(symbol: str):
     """Get a specific signal by stock symbol"""
     symbol = symbol.upper()
@@ -231,7 +211,7 @@ async def get_signal_by_symbol(symbol: str):
     raise HTTPException(status_code=404, detail=f"No signal found for {symbol}")
 
 
-@app.get("/api/stats")
+@router.get("/stats")
 async def get_statistics():
     """Get overall market statistics"""
     if not app_state.signals:
@@ -259,7 +239,7 @@ async def get_statistics():
     }
 
 
-@app.post("/api/scan")
+@router.post("/scan")
 async def trigger_scan(background_tasks: BackgroundTasks, max_stocks: int = Query(50)):
     """
     Trigger a new scan of NSE stocks
@@ -279,7 +259,7 @@ async def trigger_scan(background_tasks: BackgroundTasks, max_stocks: int = Quer
     }
 
 
-@app.post("/api/scan-symbol/{symbol}")
+@router.post("/scan-symbol/{symbol}")
 async def scan_single_symbol(symbol: str, background_tasks: BackgroundTasks):
     """Scan a single stock symbol"""
     symbol_with_ns = f"{symbol.upper()}.NS" if not symbol.endswith(".NS") else symbol.upper()
@@ -311,7 +291,7 @@ async def scan_single_symbol(symbol: str, background_tasks: BackgroundTasks):
     }
 
 
-@app.get("/api/patterns")
+@router.get("/patterns")
 async def get_pattern_list():
     """Get list of all detected patterns"""
     patterns = {}
@@ -344,7 +324,7 @@ async def get_pattern_list():
     return {"patterns": patterns}
 
 
-@app.get("/api/sectors")
+@router.get("/sectors")
 async def get_sector_analysis():
     """Get sector-wise signal breakdown"""
     sectors = {}
@@ -377,7 +357,7 @@ async def get_sector_analysis():
     return {"sectors": sectors}
 
 
-@app.get("/api/status")
+@router.get("/status")
 async def get_scan_status():
     """Get current scan status and metrics"""
     return {
@@ -390,60 +370,5 @@ async def get_scan_status():
 
 
 # ─────────────────────────────────────────────
-# STATIC FILES & 404 HANDLER
+# (Static files and fallback routing handled by Root App)
 # ─────────────────────────────────────────────
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    """Return 204 No Content for favicon requests to prevent 404 errors"""
-    return Response(status_code=204)
-
-
-@app.get("/{file_path:path}", include_in_schema=False)
-async def serve_static(file_path: str):
-    """Serve static files (CSS, JS, etc.)"""
-    # Ignore common browser requests
-    if file_path in ["favicon.ico", "robots.txt", "sitemap.xml"]:
-        return Response(status_code=204)
-    
-    try:
-        return FileResponse(file_path)
-    except FileNotFoundError:
-        # Fall back to index.html for client-side routing
-        return FileResponse("index.html", media_type="text/html")
-
-
-# ─────────────────────────────────────────────
-# ERROR HANDLERS
-# ─────────────────────────────────────────────
-@app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    """Global exception handler"""
-    return JSONResponse(
-        status_code=500,
-        content={
-            "status": "error",
-            "message": str(exc),
-            "timestamp": datetime.now().isoformat(),
-        },
-    )
-
-
-if __name__ == "__main__":
-    import uvicorn
-    
-    print("=" * 60)
-    print("Chart Pattern Intelligence API")
-    print("=" * 60)
-    print("Starting FastAPI server...")
-    print("📊 Dashboard: http://localhost:8000")
-    print("📚 API Docs: http://localhost:8000/api/docs")
-    print("=" * 60)
-    
-    # Run with uvicorn
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info",
-        reload=True,  # Auto-reload on file changes
-    )
