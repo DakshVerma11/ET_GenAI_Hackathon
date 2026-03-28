@@ -1,446 +1,485 @@
-# 🏆 ET Markets AI Intelligence Platform
+# ET Markets AI Intelligence Platform
 
-> **Submission for The Economic Times GenAI Hackathon 2026**  
-> **Problem Statement: PS-6 — AI for the Indian Investor**  
-> **Team: NITDominars**
+Submission for The Economic Times GenAI Hackathon 2026  
+Problem Statement: PS-6 - AI for the Indian Investor  
+Team: NITDominars
 
----
+## Table of Contents
 
-## 📋 Table of Contents
+1. Executive Summary
+2. Problem Statement Alignment
+3. Product Overview
+4. Key Features by Module
+5. System Architecture (Detailed)
+6. Data Flow and Request Lifecycle
+7. Repository Structure
+8. Setup and Configuration
+9. Run Instructions
+10. API Surface
+11. Reliability, Constraints, and Mitigations
+12. Security and Secret Management
+13. Impact Model (Detailed)
+14. Submission Readiness Checklist
+15. Team and License
 
-1. [Hackathon Context](#hackathon-context)
-2. [Problem Statement](#problem-statement)
-3. [Our Solution](#our-solution)
-4. [Platform Architecture](#platform-architecture)
-5. [Modules](#modules)
-   - [Opportunity Radar](#1-opportunity-radar)
-   - [Chart Pattern Intelligence](#2-chart-pattern-intelligence)
-   - [Market ChatGPT — Next Gen](#3-market-chatgpt--next-gen)
-   - [AI Market Video Engine](#4-ai-market-video-engine)
-6. [Tech Stack](#tech-stack)
-7. [Project Structure](#project-structure)
-8. [Setup & Installation](#setup--installation)
-9. [Running the Platform](#running-the-platform)
-10. [Environment Variables](#environment-variables)
-11. [API Reference](#api-reference)
-12. [Judging Criteria Alignment](#judging-criteria-alignment)
-13. [Team](#team)
+## 1) Executive Summary
 
----
+ET Markets AI Intelligence Platform is a unified GenAI system designed to help Indian retail investors convert fragmented data into actionable decisions. The platform integrates four required problem-statement capabilities in one deployable application:
 
-## 🏅 Hackathon Context
+- Opportunity Radar
+- Chart Pattern Intelligence
+- MarketGPT (portfolio-aware assistant)
+- AI Video Engine
 
-| Field | Details |
-|-------|---------|
-| **Hackathon** | The Economic Times GenAI Hackathon 2026 |
-| **Organiser** | The Economic Times & Times Internet |
-| **Partner** | Unstop |
-| **Prize Pool** | ₹10 Lakh |
-| **Track** | AI & Finance |
-| **Problem Statement** | **PS-6 — AI for the Indian Investor** |
-| **Team Name** | **NITDominars** |
-| **Submission Deadline** | 29th March 2026 |
-| **Phase** | Phase 2 — Prototype Submission |
+Instead of running disconnected services and UIs, this project exposes a single user-facing app on one port.
 
----
+Primary URL:
 
-## 🎯 Problem Statement
+- http://localhost:8000
 
-> *"India has 14 crore+ demat accounts, but most retail investors are flying blind — reacting to tips, missing filings, unable to read technicals, and managing mutual fund portfolios on gut feel. ET Markets has the data. Build the intelligence layer that turns data into actionable, money-making decisions."*
+## 2) Problem Statement Alignment
 
-### What We Were Asked to Build
+PS-6 asks for a practical intelligence layer for Indian investors. This repository addresses that through four operational modules:
 
-| Module | Description |
-|--------|-------------|
-| **Opportunity Radar** | AI that monitors corporate filings, bulk/block deals, insider trades, and management commentary shifts — surfacing missed opportunities as daily alerts |
-| **Chart Pattern Intelligence** | Real-time technical pattern detection across NSE with plain-English explanation and historical back-tested success rates |
-| **Market ChatGPT — Next Gen** | A deeper, portfolio-aware AI assistant with multi-step analysis, deep data integration, and source-cited responses |
-| **AI Market Video Engine** | Auto-generate 30–90 second market update videos from real-time data with race charts, sector rotations, FII/DII flows, and zero human editing |
+1. Opportunity Radar
+2. Chart Pattern Intelligence
+3. MarketGPT - Next Gen
+4. AI Market Video Engine
 
----
+Why this implementation is practical:
 
-## 💡 Our Solution
+- One-command startup
+- Unified navigation and API integration
+- Real market data ingestion paths
+- AI reasoning and summarization components
+- Output formats for both analysis and communication
 
-We built the **ET Markets AI Intelligence Platform** — a fully integrated, production-grade solution that implements **all four modules** from the problem statement, unified behind a single web interface.
+## 3) Product Overview
 
-### Key Differentiators
+The platform is implemented as a unified FastAPI-based gateway with mounted module routes and static frontends.
 
-- 🏠 **Single-port architecture** — One URL (`http://localhost:8000`), one command, everything running
-- 🔗 **True integration** — All modules share a unified design system, navigation, and entry point
-- ⚡ **Groq-powered inference** — Using `llama-3.3-70b-versatile` for sub-second AI responses
-- 📡 **Live NSE data** — Real-time prices via `yfinance` across all modules
-- 🎬 **End-to-end video generation** — From raw market data → AI script → narrated video with captions
-- 📊 **3-year backtesting** — Chart patterns backed by historical win rates, not just signals
+Core entry points:
 
----
+- [main.py](main.py)
+- [start.py](start.py)
 
-## 🏗 Platform Architecture
+High-level behavior:
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                    User Browser                                   │
-│                   localhost:8000                                  │
-└──────────────────────────┬───────────────────────────────────────┘
-                           │
-                           ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                    gateway.py  (FastAPI)                          │
-│                                                                   │
-│  GET /                →  Home Page (index.html)                  │
-│  GET /chart-pattern   →  iframe → Chart Pattern & Radar           │
-│  GET /market-chat     →  iframe → Market ChatGPT                 │
-│  GET /video           →  iframe → AI Video Engine                │
-└──────┬────────────────────────┬─────────────────────┬────────────┘
-       │                        │                     │
-       ▼                        ▼                     ▼
-┌─────────────┐      ┌─────────────────┐    ┌─────────────────┐
-│ Chart_Pattern│      │   ETChatbot     │    │    VideoGen     │
-│  (FastAPI)  │      │   (FastAPI)     │    │  (Streamlit)    │
-│  port 8001  │      │   port 8002     │    │   port 8501     │
-│             │      │                 │    │                 │
-│  - Pattern  │      │ - Groq LLM RAG  │    │ - Groq LLM      │
-│    Engine   │      │ - HF Embeddings │    │ - edge-tts TTS  │
-│  - Radar    │      │ - Portfolio CSV │    │ - moviepy video │
-│  - yfinance │      │ - yfinance      │    │ - yfinance      │
-└─────────────┘      └─────────────────┘    └─────────────────┘
-```
+1. User opens root URL.
+2. Frontend routes provide access to each module.
+3. APIs call module logic for signals, chat, or video processing.
+4. Results are shown in web dashboards or generated media outputs.
 
----
+## 4) Key Features by Module
 
-## 📦 Modules
+### 4.1 Opportunity Radar
 
-### 1. Opportunity Radar
-**Path:** `Chart_Pattern/` | **Port:** 8001 (internal) | **Access:** `/chart-pattern`
+Primary code areas:
 
-Monitors the NSE universe for actionable trading signals based on technical patterns and corporate events.
+- [Radar/routes.py](Radar/routes.py)
+- [Radar/pipeline.py](Radar/pipeline.py)
+- [Radar/signals.py](Radar/signals.py)
 
-**Features:**
-- 🔍 Scans 50+ NSE stocks for technical patterns on startup and on-demand
-- 📊 Detects: Breakouts, RSI divergences, Moving average crossovers, Support/Resistance breaks, Candlestick patterns (Hammer, Doji, Engulfing)
-- 💯 Conviction scoring (0–100) based on signal strength and volume confirmation
-- 📈 3-year historical backtesting with win rates and average gain per pattern per stock
-- 🏭 Sector-wise signal breakdown
-- ⚡ Background scan thread — results live-update without user action
+Capabilities:
 
-**API Endpoints:**
-```
-GET  /api/signals           # All signals with optional filters
-GET  /api/signals/{symbol}  # Signal for specific stock
-GET  /api/stats             # Market-wide statistics
-GET  /api/sectors           # Sector analysis
-POST /api/scan              # Trigger a fresh scan
-GET  /api/health            # Server health
-```
+- Event/opportunity signal generation
+- Alert listing and alert state update APIs
+- Sector-level heat and opportunity views
+- Dashboard integration through unified /api/radar endpoints
 
----
+### 4.2 Chart Pattern Intelligence
 
-### 2. Chart Pattern Intelligence
-**Path:** `Chart_Pattern/` | **Port:** 8001 (internal) | **Access:** `/chart-pattern`
+Primary code areas:
 
-The front-facing dashboard for the Opportunity Radar backend. Provides a rich UI with real-time signal visualization.
+- [Chart_Pattern/main.py](Chart_Pattern/main.py)
+- [Chart_Pattern/pattern_engine.py](Chart_Pattern/pattern_engine.py)
 
-**Features:**
-- 🎯 Live signal cards with bullish/bearish classification
-- 📊 Per-signal detail view with entry price, stop-loss, target, and timeframe
-- 🔎 Filter by direction (bullish/bearish) and minimum conviction score
-- 🗂 Sector grouping and sorting
-- 🔄 Manual rescan trigger with live status indicator
+Capabilities:
 
----
+- Technical pattern extraction
+- Signal confidence/conviction scoring
+- Symbol-level pattern interpretation and reporting
+- JSON/API-delivered signal outputs for UI
 
-### 3. Market ChatGPT — Next Gen
-**Path:** `ETChatbot/` | **Port:** 8002 (internal) | **Access:** `/market-chat`
+### 4.3 MarketGPT (Portfolio-Aware)
 
-A RAG-powered portfolio-aware AI assistant for Indian retail investors.
+Primary code areas:
 
-**Features:**
-- 🤖 Groq LLM (`llama-3.3-70b-versatile`) for fast, accurate financial reasoning
-- 📁 **Portfolio Upload** — Upload a CSV of your holdings; all answers become portfolio-aware
-- 🔍 **RAG Pipeline** — HuggingFace embeddings + hybrid retriever for source-cited responses
-- 📡 **Live Ticker** — Real-time NSE index feed across the top bar
-- 🌍 Geopolitical risk context injection
-- 📄 Response format: Verdict → Key Insights → Full Analysis → Portfolio Impact → Citations
+- [ETChatbot/backend/main.py](ETChatbot/backend/main.py)
+- [ETChatbot/backend/rag](ETChatbot/backend/rag)
+- [ETChatbot/frontend/script.js](ETChatbot/frontend/script.js)
 
-**Portfolio CSV Format:**
-```csv
-symbol,allocation
-RELIANCE,25
-TCS,20
-HDFCBANK,15
-INFY,10
-```
+Capabilities:
 
-**API Endpoints:**
-```
-POST /chat                           # Main chat endpoint
-POST /portfolio/upload-csv           # Upload portfolio holdings
-GET  /portfolio/{user_id}            # Get stored portfolio
-GET  /ticker                         # Live NSE data feed
-```
+- Portfolio-context Q&A
+- Intent-aware orchestration and retrieval
+- Response synthesis from market + document context
+- Query prefill integration from Radar deep-research flow
 
----
+### 4.4 AI Video Engine
 
-### 4. AI Market Video Engine
-**Path:** `VideoGen/` | **Port:** 8501 (internal) | **Access:** `/video`
+Primary code areas:
 
-Fully automated pipeline that converts live market data into a narrated 9:16 vertical video — zero human editing.
+- [VideoGen/api.py](VideoGen/api.py)
+- [VideoGen/src/pipeline_runner.py](VideoGen/src/pipeline_runner.py)
+- [VideoGen/src/tts_engine.py](VideoGen/src/tts_engine.py)
+- [VideoGen/src/video_engine.py](VideoGen/src/video_engine.py)
 
-**Pipeline:**
-```
-Live NSE Data (yfinance)
-        ↓
-Market Dashboard Extraction
-        ↓
-Scene Planning (Blueprint Engine)
-        ↓
-AI Script Generation (Groq llama-3.3-70b-versatile)
-        ↓
-Text-to-Speech Narration (edge-tts)
-        ↓
-Video Rendering (moviepy + matplotlib)
-        ↓
-Animated Captions (shorts-style pop-up overlays)
-        ↓
-Final MP4 (1080×1920, 9:16 vertical)
-```
+Capabilities:
 
-**Features:**
-- 🎬 7-scene structured storyboard (Intro → Indices → VIX → Sector Winners → Losers → Insight → Outro)
-- 🗣 AI narration at 1.25× speed for energetic delivery
-- 📊 Race-chart style animated bar charts for sector performance
-- 💬 Dynamic shorts-style animated captions synced to speech
-- 📱 9:16 vertical aspect ratio (YouTube Shorts / Instagram Reels ready)
-- 🔄 Robust data filtering — handles missing/delisted symbols gracefully
+- Market snapshot extraction
+- AI script generation
+- TTS narration synthesis
+- Rendered MP4 generation pipeline
 
----
+## 5) System Architecture (Detailed)
 
-## 🛠 Tech Stack
+### 5.1 Architecture Style
 
-| Layer | Technology |
-|-------|-----------|
-| **AI / LLM** | Groq API (`llama-3.3-70b-versatile`) |
-| **Embeddings** | HuggingFace `sentence-transformers/all-MiniLM-L6-v2` |
-| **Market Data** | `yfinance` (live NSE data) |
-| **Backend (Chart Pattern & Gateway)** | FastAPI + Uvicorn |
-| **Backend (ETChatbot)** | FastAPI + Uvicorn |
-| **Frontend (Chart Pattern)** | Vanilla HTML/CSS/JS |
-| **Frontend (ETChatbot)** | Vanilla HTML/CSS/JS |
-| **Video App** | Streamlit |
-| **Video Rendering** | `moviepy 1.0.3` + `matplotlib` + `Pillow` |
-| **Text-to-Speech** | `edge-tts` (Microsoft Neural TTS) |
-| **Design System** | Syne + DM Sans + DM Mono (Google Fonts) |
-| **Gateway** | FastAPI (iframe-based module wrapper) |
+The system follows a modular-monolith integration approach:
 
----
+- Modular responsibilities per domain folder
+- Unified runtime process for simpler operation and demo reliability
+- Route-level isolation for each module namespace
 
-## 📁 Project Structure
+This choice reduces operational complexity while preserving clear component boundaries.
 
-```
-ET Hackathon/
-│
-├── gateway.py               # 🌐 Unified gateway (port 8000) — single entry point
-├── start.py                 # 🚀 One-command launcher for all services
-├── start.bat                # 🪟 Windows double-click launcher
-├── index.html               # 🏠 Home page / platform hub
-│
-├── Chart_Pattern/           # 📡 Module 1+2: Opportunity Radar & Chart Pattern
-│   ├── main.py              # FastAPI backend (port 8001)
-│   ├── pattern_engine.py    # NSE pattern detection engine
-│   ├── index.html           # Dashboard frontend
-│   ├── requirements.txt
-│   └── signals.json         # Cached scan results
-│
-├── ETChatbot/               # 🤖 Module 3: Market ChatGPT Next Gen
-│   ├── backend/
-│   │   ├── main.py          # FastAPI app (port 8002)
-│   │   ├── config.py        # Settings (Groq + HF keys)
-│   │   ├── agents/          # Specialized analysis agents
-│   │   └── rag/             # RAG pipeline (retriever, embedder, orchestrator)
-│   ├── frontend/
-│   │   ├── index.html       # Chat UI
-│   │   ├── styles.css       # Unified design system
-│   │   └── script.js        # Chat + portfolio upload logic
-│   ├── data/                # Knowledge base documents
-│   ├── vectorstore/         # FAISS index
-│   ├── .env                 # API keys
-│   └── requirements.txt
-│
-└── VideoGen/                # 🎬 Module 4: AI Market Video Engine
-    ├── app.py               # Streamlit app (port 8501)
-    ├── src/
-    │   ├── ai_engine.py     # Groq script generation
-    │   ├── extractor.py     # NSE data extraction
-    │   ├── scene_planner.py # Scene blueprint logic
-    │   ├── pipeline_runner.py # Video assembly pipeline
-    │   └── insight_engine.py
-    ├── output/              # Generated videos & logs
-    ├── .env                 # API keys
-    └── requirements.txt
-```
+### 5.2 Runtime Topology
 
----
+Text diagram:
 
-## ⚙️ Setup & Installation
+Browser
+	-> Unified FastAPI App (port 8000)
+		-> Frontend Routes: /, /chart-pattern, /radar, /market-chat, /video
+		-> API Routes:
+			 -> /api/chart/*
+			 -> /api/radar/*
+			 -> /api/chat/*
+			 -> /api/video/*
 
-### Prerequisites
+### 5.3 Unified Gateway Responsibilities
+
+In [main.py](main.py), the app:
+
+- initializes the root FastAPI application
+- includes each module router with prefix scoping
+- mounts static frontends/assets
+- coordinates startup lifecycle hooks where needed
+
+### 5.4 Module Communication Pattern
+
+The modules are integrated by in-process function/API composition, not distributed RPC:
+
+- Frontend calls the unified API namespace
+- API handlers dispatch to module-specific business logic
+- Results return to frontend without inter-service network hops
+
+Benefits:
+
+- Lower latency in local execution
+- Easier debugging and deterministic startup
+- Fewer deployment moving parts
+
+Trade-off:
+
+- Long-running tasks can hold request context unless offloaded
+
+### 5.5 Handling Long-Running Work
+
+Video generation can take substantial time. The system avoids event-loop conflicts by offloading blocking execution paths (for example, thread offloading patterns in video API paths).
+
+Future production enhancement:
+
+- move long renders to a queued job model
+- expose status polling endpoint
+- optionally persist job state in database/cache
+
+### 5.6 Data Sources and AI Dependencies
+
+Data inputs:
+
+- market feeds via yfinance/external providers
+- project JSON knowledge files in data folders
+- user portfolio CSV inputs
+
+Model and AI dependencies:
+
+- Groq API for generation/inference workflows
+- embedding/retrieval stack for MarketGPT RAG paths
+
+### 5.7 Error Handling and Resilience Design
+
+Current resilience characteristics:
+
+- startup dependency checks in launcher
+- process-failure detection to avoid false-success startup
+- route-prefix normalization for unified mode
+- Windows-safe console logging choices for stability
+
+Known operational realities:
+
+- external provider intermittency (timeouts/cookies/404s)
+- long render durations can exceed short HTTP client timeouts
+
+## 6) Data Flow and Request Lifecycle
+
+### 6.1 User Navigation Flow
+
+1. User lands on root page.
+2. User selects module via navigation.
+3. Frontend module page loads.
+4. Frontend calls corresponding /api/* routes.
+5. Response is rendered as charts, cards, text analysis, or media links.
+
+### 6.2 Example Radar Flow
+
+1. UI calls /api/radar/signals.
+2. Radar route invokes pipeline/aggregation logic.
+3. Response returns signals and metadata.
+4. UI updates signal cards and filters.
+
+### 6.3 Example MarketGPT Flow
+
+1. User submits query or query is prefilled from Radar deep research.
+2. Backend classifies intent and retrieves relevant context.
+3. Synthesis layer creates final answer.
+4. UI renders answer with supporting structure.
+
+### 6.4 Example Video Flow
+
+1. UI calls video generation endpoint.
+2. Pipeline extracts market state and drafts script.
+3. TTS and rendering stages generate final media.
+4. Output metadata and artifact path are returned.
+
+## 7) Repository Structure
+
+Core files:
+
+- [main.py](main.py): unified app and mounted routes
+- [start.py](start.py): launcher, install bootstrap, startup checks
+- [index.html](index.html): platform entry frontend
+
+Module roots:
+
+- [Radar](Radar)
+- [Chart_Pattern](Chart_Pattern)
+- [ETChatbot](ETChatbot)
+- [VideoGen](VideoGen)
+
+Important subpaths:
+
+- [Radar/routes.py](Radar/routes.py)
+- [Chart_Pattern/pattern_engine.py](Chart_Pattern/pattern_engine.py)
+- [ETChatbot/backend/rag](ETChatbot/backend/rag)
+- [VideoGen/src](VideoGen/src)
+
+## 8) Setup and Configuration
+
+### 8.1 Prerequisites
 
 - Python 3.8 or higher
-- pip
-- Internet connection (for live NSE data + Groq API)
+- Internet access for model and market endpoints
 
-### API Keys Required
+### 8.2 Environment Variables
 
-| Key | Where to Get | Used By |
-|-----|-------------|---------|
-| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | ETChatbot + VideoGen |
-| `HF_API_KEY` | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) | ETChatbot (embeddings) |
+Expected secret locations:
 
-### Configure Environment Files
+- [ETChatbot/.env](ETChatbot/.env)
+- [VideoGen/.env](VideoGen/.env)
 
-**`ETChatbot/.env`:**
-```env
-GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-HF_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-HF_GENERATOR_MODEL=Qwen/Qwen2.5-7B-Instruct
-HF_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-```
+Required variables:
 
-**`VideoGen/.env`:**
-```env
-GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+- GROQ_API_KEY
+- HF_API_KEY
 
-> 💡 You can use the **same Groq API key** in both `.env` files.
+Optional model override variables may be configured in module-level settings when needed.
 
----
+### 8.3 First-Run Notes
 
-## 🚀 Running the Platform
+- first run can take longer due to dependency install
+- startup behavior is controlled through launcher flags
 
-### One-Command Start
+## 9) Run Instructions
+
+Run from repository root:
 
 ```powershell
-# Clone / navigate to project root
-cd "ET Hackathon"
-
-# Start everything (installs deps automatically on first run)
 python start.py
 ```
 
-```bash
-# Or on Windows, double-click:
-start.bat
-```
-
-The launcher will:
-1. ✅ Check Python version
-2. 📦 Install all module dependencies automatically
-3. 🚀 Start all 4 services
-4. 🌐 Open `http://localhost:8000` in your browser
-
-### Skip Install (Faster Subsequent Runs)
+Skip dependency installation:
 
 ```powershell
 python start.py --skip-install
 ```
 
-### What Starts
+Do not auto-open browser:
 
-| Service | Internal Port | Description |
-|---------|-------------|-------------|
-| Gateway | **8000** (user-facing) | Unified entry point + home page |
-| Chart Pattern & Radar | 8001 (internal) | FastAPI backend |
-| Market ChatGPT | 8002 (internal) | FastAPI RAG backend |
-| AI Video Engine | 8501 (internal) | Streamlit app |
-
-### 🌐 The Only URL You Need
-
-```
-http://localhost:8000
+```powershell
+python start.py --no-browser
 ```
 
-Navigate between all modules using the top nav bar. No port numbers required.
+Access the app at:
 
----
+- http://localhost:8000
 
-## 🔑 Environment Variables
+## 10) API Surface
 
-| Variable | File | Required | Description |
-|----------|------|----------|-------------|
-| `GROQ_API_KEY` | `ETChatbot/.env` | ✅ | Groq API key for LLM inference |
-| `HF_API_KEY` | `ETChatbot/.env` | ✅ | HuggingFace API key for embeddings |
-| `HF_GENERATOR_MODEL` | `ETChatbot/.env` | Optional | Override generator model |
-| `HF_EMBEDDING_MODEL` | `ETChatbot/.env` | Optional | Override embedding model |
-| `GROQ_API_KEY` | `VideoGen/.env` | ✅ | Groq API key for video script generation |
+Primary namespaces:
 
----
+- /api/chart/*
+- /api/radar/*
+- /api/chat/*
+- /api/video/*
 
-## 📡 API Reference
+Common UI routes:
 
-### Chart Pattern & Radar API (port 8001)
+- /
+- /chart-pattern
+- /radar
+- /market-chat
+- /video
 
-```http
-GET  /api/signals?direction=bullish&min_conviction=60&sort_by=conviction
-GET  /api/signals/{symbol}
-GET  /api/stats
-GET  /api/sectors
-POST /api/scan?max_stocks=50
-GET  /api/patterns
-GET  /api/status
-GET  /api/health
-```
+## 11) Reliability, Constraints, and Mitigations
 
-### Market ChatGPT API (port 8002)
+### 11.1 Reliability Improvements Already Present
 
-```http
-POST /chat
-Content-Type: application/json
-{
-  "user_id": "user123",
-  "query": "What is my risk exposure in the banking sector?"
-}
+- dependency compatibility fixes across modules
+- robust startup checks in launcher
+- route alignment fixes for unified and standalone compatibility
+- safer async boundaries for long-running video generation
 
-POST /portfolio/upload-csv?user_id=user123
-Content-Type: multipart/form-data
-(CSV with 'symbol' and 'allocation' columns)
+### 11.2 Known Constraints
 
-GET  /portfolio/{user_id}
-GET  /ticker
-```
+- third-party market providers can occasionally fail or throttle
+- video rendering can exceed short synchronous client timeout windows
 
----
+### 11.3 Recommended Next Technical Enhancements
 
-## 📊 Judging Criteria Alignment
+1. Introduce asynchronous job queue for video generation.
+2. Add status polling and retry metadata endpoint.
+3. Cache high-frequency market fetches with stale-while-revalidate strategy.
+4. Add module-level integration tests for top API paths.
 
-| Criterion | Weight | Our Implementation |
-|-----------|--------|-------------------|
-| **Innovation & Creativity** | 20% | All 4 modules built + unified gateway; real backtesting; Groq-powered video scripts |
-| **Technical Implementation** | 20% | FastAPI + RAG + Streamlit + moviepy; clean architecture; typed Python; single-port gateway |
-| **Practical Impact** | 20% | Directly addresses all 4 sub-problems in PS-6; live NSE data; portfolio-aware answers |
-| **User Experience** | 20% | Premium dark-mode UI; single URL; top-nav module switching; mobile-optimised video output |
-| **Pitch Quality** | 20% | Live working demo; detailed architecture; one-command start; this README |
+## 12) Security and Secret Management
 
----
+- Keep API keys in local .env files only.
+- Do not commit secrets to repository history.
+- Rotate keys before public demos if keys were shared in temporary environments.
+- Consider adding request logging redaction for sensitive payloads.
 
-## 👥 Team
+## 13) Impact Model (Detailed)
 
-**Team NITDominars**
+### 13.1 Objective
 
-Submission for the **ET GenAI Hackathon 2026** — India's Largest GenAI Challenge  
-Problem Statement: **PS-6 — AI for the Indian Investor**
+Estimate practical value created for a retail investor using the platform versus a manual baseline.
 
----
+### 13.2 Baseline Assumptions
 
-## 📄 License
+Assume one active investor:
 
-Built for the ET Hackathon 2026. All code is original and created for this submission.
+- reviews market data 5 days per week
+- spends around 45 minutes/day on discovery and interpretation
+- makes 8 tactical decisions/month under incomplete information
 
----
+Assume platform usage:
 
-<div align="center">
+- daily use of Radar + Chart Pattern modules
+- regular use of MarketGPT for portfolio-context decisions
+- consumption of AI Video summaries for compact updates
 
-**ET Markets AI Intelligence Platform**  
-*Turn Market Data Into Money-Making Intelligence*
+### 13.3 Time-Saving Model
 
-Built with ❤️ by Team NITDominars for the ET GenAI Hackathon 2026
+Manual baseline:
 
-</div>
+- $45$ min/day x $22$ days/month $= 990$ min/month
+
+With platform:
+
+- $20$ min/day x $22$ days/month $= 440$ min/month
+
+Net savings:
+
+- $990 - 440 = 550$ min/month
+- $550/60 = 9.17$ hours/month
+
+If time value is INR 300/hour:
+
+- monthly value $= 9.17 \times 300 = 2,751$ INR
+- annual value $= 2,751 \times 12 = 33,012$ INR
+
+### 13.4 Decision-Quality Model
+
+Assumptions:
+
+- tactical capital influenced monthly: INR 200,000
+- avoidable baseline drag from noise/timing: $1.2\%$/month
+- platform reduces avoidable drag by $25\%$
+
+Baseline drag:
+
+- $200,000 \times 1.2\% = 2,400$ INR/month
+
+Recovered value:
+
+- $2,400 \times 25\% = 600$ INR/month
+- annualized $= 7,200$ INR
+
+### 13.5 Combined User-Level Annual Value
+
+- productivity component: INR 33,012
+- decision-quality component: INR 7,200
+- combined: INR 40,212 per user per year
+
+### 13.6 Scale Scenario
+
+If 10,000 active users adopt and 35% realize full modeled impact:
+
+- effective users: $10,000 \times 35\% = 3,500$
+- aggregate annual value: $3,500 \times 40,212 = 140,742,000$ INR
+- approximately INR 14.07 crore annual value
+
+### 13.7 Conservative Scenario
+
+Conservative assumptions:
+
+- only 5 hours/month saved
+- only INR 300/month decision-drag recovery
+
+Annual user value:
+
+- $5 \times 300 \times 12 + 300 \times 12 = 21,600$ INR/year
+
+Even this conservative case remains materially positive.
+
+### 13.8 Non-Quantified Benefits
+
+- higher decision confidence from explainable outputs
+- reduced dependence on low-signal social media tips
+- faster reaction to opportunity windows
+- better investor communication through generated video summaries
+
+### 13.9 Model Limitations
+
+- directional model; not audited PnL attribution
+- real outcomes vary with behavior and market regime
+- production validation should use controlled cohort analysis and retention-linked metrics
+
+## 14) Submission Readiness Checklist
+
+- complete codebase present in public repository
+- one-command startup available
+- architecture details included in this README
+- impact model included in this README
+- module coverage mapped to PS-6 requirements
+
+## 15) Team and License
+
+Team:
+
+- NITDominars
+
+License note:
+
+- Built for ET GenAI Hackathon 2026 submission.
